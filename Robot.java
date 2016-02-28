@@ -160,12 +160,18 @@ public class Robot extends IterativeRobot {
         arm.move(operatorController.getRawButton(1), operatorController.getRawButton(4));
         arm.intakeRoller(operatorController.getRawButton(5), operatorController.getRawButton(6));
         // arm.readEncoder();
-        }
+        
+        this.maintainState();
+    }
     
     /**
      * This function is called periodically during test mode
      */
     public void testPeriodic() {
         LiveWindow.run();
+    }
+    
+    public void maintainState() {
+    	arm.maintainState();
     }
 }
