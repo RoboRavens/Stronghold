@@ -10,6 +10,8 @@ public class RobotArm {
 	CANTalon ArmRightSide;
 	DigitalInput armLowerLimit;
 	DigitalInput armUpperLimit;
+	DigitalInput rollerHasBoulderSwitch;
+	
 	//EncoderToMotor armEncoder;
 	int masterArmTalonId = 1;
 	int followerArmTalonId = 0;
@@ -26,6 +28,7 @@ public class RobotArm {
         intakeRollerMotor = new CANTalon(rollerTalonId);
         armLowerLimit = new DigitalInput(4);
         armUpperLimit = new DigitalInput(5);
+        rollerHasBoulderSwitch = new DigitalInput(6);
       
 		setArmMode(0);
 		ArmRightSide.setPosition(0);	
@@ -75,6 +78,10 @@ public class RobotArm {
     	
     	ArmLeftSide.set(armSpeed);
     	ArmRightSide.set(armSpeed);
+    }
+    
+    public boolean rollerHasBoulder() {
+    	return rollerHasBoulderSwitch.get();
     }
 	
 /*    public void armPosition(boolean up, boolean down) {
