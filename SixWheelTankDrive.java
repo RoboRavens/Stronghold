@@ -6,12 +6,22 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Timer;
 
 public class SixWheelTankDrive {
+	
 	RavenTalon driveRight1;
 	RavenTalon driveRight2;
 	RavenTalon driveRightInverted;
 	RavenTalon driveLeft1;
 	RavenTalon driveLeft2;
-	RavenTalon driveLeftInverted;  
+	RavenTalon driveLeftInverted;
+	
+	/*
+	Talon driveRight1;
+	Talon driveRight2;
+	Talon driveRightInverted;
+	Talon driveLeft1;
+	Talon driveLeft2;
+	Talon driveLeftInverted;
+	*/
 	
 	Encoder leftDriveEncoder;
     Encoder rightDriveEncoder;
@@ -40,6 +50,17 @@ public class SixWheelTankDrive {
 		driveLeft1 = new RavenTalon(3, slewRate);
 		driveLeft2 = new RavenTalon(4, slewRate);
 		driveLeftInverted = new RavenTalon(5, slewRate);
+		
+		
+		
+		/*
+		driveRight1 = new Talon(0);
+		driveRight2 = new Talon(1);
+		driveRightInverted = new Talon(2);
+		driveLeft1 = new Talon(3);
+		driveLeft2 = new Talon(4);
+		driveLeftInverted = new Talon(5);
+		*/
 		
 		orientationGyro = new AnalogGyro(0);
 		gyroCooldownTimer = new Timer();
@@ -91,7 +112,7 @@ public class SixWheelTankDrive {
     	rightY = deadzone(rightY);
     	rightX = deadzone(rightX);
     	
-    	this.setSlewRate(this.calibrationStick.getZ() / 10);
+    	this.setSlewRate(Math.abs(this.calibrationStick.getZ() * 2));
     	
     	// double turn = Math.abs(left - right);
     	
@@ -126,11 +147,11 @@ public class SixWheelTankDrive {
     	driveRightInverted.set(right * -1);	
     }
     
-    public void fpsTank(double turn, double movement) {
+    public void fpsTank(double movement, double turn) {
     	
     	if (limitedPower == 1){
-    		turn *= 0.3;
-    		movement *= 0.5;
+    		movement *= 0.3;
+    		turn *= 0.5;
     	}
     	
     	// double turn = Math.abs(movement - right);
@@ -139,14 +160,17 @@ public class SixWheelTankDrive {
     	
     	//gyroAdjust = gyroAdjustment(right); 
     	
-    	
-    	driveLeft1.set(movement - turn + gyroAdjust);
-    	driveLeft2.set(movement - turn + gyroAdjust);
-    	driveLeftInverted.set((movement - turn + gyroAdjust) * -1);
-    	driveRight1.set(movement + turn + gyroAdjust);
-    	driveRight2.set(movement + turn + gyroAdjust);
-    	driveRightInverted.set((movement + turn + gyroAdjust) * -1);	
-    }
+        System.out.println("Gyro adjust: " + gyroAdjust + " gyro: " + this.orientationGyro.getAngle());
+        
+        //gyroAdjust = 0;
+        
+        driveLeft1.set((movement - turn) * - 1 - gyroAdjust);
+    	driveLeft2.set((movement - turn)  * -1 - gyroAdjust);
+    	driveLeftInverted.set((movement - turn) + gyroAdjust);
+    	driveRight1.set((movement + turn) - gyroAdjust);
+    	driveRight2.set((movement + turn) - gyroAdjust);
+    	driveRightInverted.set((movement + turn) * -1 + gyroAdjust);
+}
     
     public void driveOutput() {
     	
@@ -227,10 +251,10 @@ public class SixWheelTankDrive {
     	// This snippet ensures that the robot will spin in the fastest direction to zero
     	// if it ends up more than 180 degrees off of intention.
     	if (gyroAdjust < -180){
-    		gyroAdjust = gyroAdjust + 360;
+    		gyroAdjust = gyroAdjust - 360;
     	}
     	if (gyroAdjust > 180){
-    		gyroAdjust = gyroAdjust - 360;
+    		gyroAdjust = gyroAdjust + 360;
     	}
     	
     	// Mod again in case the directional snippet was applied.

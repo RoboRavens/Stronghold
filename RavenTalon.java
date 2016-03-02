@@ -9,7 +9,9 @@ public class RavenTalon {
 	
 	// The default slew rate of 2 means no acceleration cutting will occur,
 	// as this enables changing between -1 and 1 in a single tick.
-	protected double slewRate = 2;
+	protected double maxSlewRate = 2;
+	
+	protected double deadband = .05;
 	
 	public RavenTalon(int channel) {
 		talon = new Talon(channel);
@@ -25,11 +27,15 @@ public class RavenTalon {
 	// Protip: this number should be greater than zero, but likely not by much.
 	// If it's zero the motor will never change output.
 	public void setSlewRate(double slewRate) {
-		this.slewRate = slewRate;
+		this.maxSlewRate = slewRate;
 	}
 	
 	public void set(double targetOutput) {
 		double newOutputSpeed = outputSpeed;
+		
+		// Never change the speed by more than the difference between target and actual,
+		// regardless of what the slew rate is.
+		double slewRate = Math.min(maxSlewRate, Math.abs(targetOutput - outputSpeed));
 		
 		// Increment or decrement the new output speed,
 		// but never to a magnitude larger than 1.		
@@ -45,11 +51,16 @@ public class RavenTalon {
 			newOutputSpeed = Math.max(newOutputSpeed, -1);
 		}
 		
+		
+		if (Math.abs(targetOutput) < this.deadband && Math.abs(outputSpeed) < this.maxSlewRate) {
+			newOutputSpeed = 0;
+		}
+		
+		
 		// Update and set the output speed.
 		outputSpeed = newOutputSpeed;
 		
-
-		System.out.println("Target Output: " + targetOutput + " Output: " + outputSpeed + " Slew rate: " + slewRate);
+		//System.out.println("Target: " + targetOutput + " Actual: " + outputSpeed + " Slew: " + maxSlewRate);
 		
 		talon.set(outputSpeed);
 	}

@@ -70,7 +70,8 @@ public class Robot extends IterativeRobot {
 	public void disabledPeriodic() {
 		Scheduler.getInstance().run();
 		this.maintainState();
-		System.out.println("Buffered DIO: " + arm.rollerHasBoulder() + " DIO: " + arm.rollerHasBoulderSwitch.digitalInput.get());
+		
+		
 		//arm.readEncoder();
 //		driveTrain.getRightDriveEncoder();
     //    driveTrain.getLeftDriveEncoder();
