@@ -1,4 +1,3 @@
-
 package org.usfirst.frc.team1188.robot;
 
 import edu.wpi.first.wpilibj.IterativeRobot;
@@ -11,6 +10,7 @@ import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.CameraServer;
+import edu.wpi.first.wpilibj.Timer;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -30,7 +30,8 @@ public class Robot extends IterativeRobot {
 	Command autonomousCommand;
 	SendableChooser chooser;
 	CameraServer server;
-
+  Timer autoTimer;
+  
   public Robot() {
 	server = CameraServer.getInstance();
 	server.setQuality(50);
@@ -54,6 +55,8 @@ public class Robot extends IterativeRobot {
 
         driveTrain = new SixWheelTankDrive();
         arm = new RobotArm();
+        
+        autoTimer = new Timer();
         
         
     }
@@ -89,6 +92,9 @@ public class Robot extends IterativeRobot {
     public void autonomousInit() {
         autonomousCommand = (Command) chooser.getSelected();
         
+        driveTrain.resetDriveGyro();
+        autoTimer.start();
+        
 		/* String autoSelected = SmartDashboard.getString("Auto Selector", "Default");
 		switch(autoSelected) {
 		case "My Auto":
@@ -109,6 +115,19 @@ public class Robot extends IterativeRobot {
      */
     public void autonomousPeriodic() {
         Scheduler.getInstance().run();
+        
+        // Move the arm down.
+        // The limit switches will turn it off when it gets to the bottom of its travel.
+        arm.move(0, 1);
+                
+        if (autoTimer.get() < 5) {
+          // Drive straight backward.
+          driveTrain.drive(-1, 0, 0);
+        }
+        else {
+          // Stop the robot.
+          driveTrain.drive(0, 0, 0);
+        }
     }
 
     public void teleopInit() {
