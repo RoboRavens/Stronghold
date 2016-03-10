@@ -5,8 +5,6 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
-// import org.usfirst.frc.team1188.robot.commands.ExampleCommand;
-// import org.usfirst.frc.team1188.robot.subsystems.ExampleSubsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.CameraServer;
@@ -19,8 +17,6 @@ import edu.wpi.first.wpilibj.CameraServer;
  * directory.
  */
 public class Robot extends IterativeRobot {
-
-	// public static final ExampleSubsystem exampleSubsystem = new ExampleSubsystem();
 	public static OI oi;
 	SixWheelTankDrive driveTrain;
 	RobotArm arm;
@@ -59,11 +55,7 @@ public class Robot extends IterativeRobot {
         arm = new RobotArm();
         autoMode = new AutonomousModes(arm, driveTrain);
         booCount1 = false;
-        booCount2 = false;
-       
-        
-        
-        
+        booCount2 = false;        
     }
         
 	/**
@@ -80,29 +72,25 @@ public class Robot extends IterativeRobot {
 		this.maintainState();
 		
         // String stringZero = SmartDashboard.getString("DB/String 0", "myDefaultData");
-		autoFromDashboard = SmartDashboard.getString("DB/String 0", "myDefaultData");
+		autoFromDashboard = SmartDashboard.getString("SetAuto", "myDefaultData");
 		
 		//check input
 		switch (autoFromDashboard){
 		case "RT":
-			SmartDashboard.putString("DB/String 1", autoFromDashboard);
+			SmartDashboard.putString("AutoMode", autoFromDashboard);
 			break;
 		case "LB":
-			SmartDashboard.putString("DB/String 1", autoFromDashboard);
+			SmartDashboard.putString("AutoMode", autoFromDashboard);
 			break;
 		case "PT":
-			SmartDashboard.putString("DB/String 1", autoFromDashboard);
+			SmartDashboard.putString("AutoMode", autoFromDashboard);
 			break;
 		case "BT":
-			SmartDashboard.putString("DB/String 1", autoFromDashboard);
+			SmartDashboard.putString("AutoMode", autoFromDashboard);
 			break;
 		default:
-			SmartDashboard.putString("DB/String 1", "Error");
-    }
-
-		//arm.readEncoder();
-//		driveTrain.getRightDriveEncoder();
-    //    driveTrain.getLeftDriveEncoder();
+			SmartDashboard.putString("AutoMode", "Error");
+		}
 	}
 
 	/**
@@ -159,11 +147,7 @@ public class Robot extends IterativeRobot {
     
     
     public void teleopInit() {
-		// This makes sure that the autonomous stops running when
-        // teleop starts running. If you want the autonomous to 
-        // continue until interrupted by another command, remove
-        // this line or comment it out.
-    	
+	 	
         if (autonomousCommand != null) autonomousCommand.cancel();
     }
 
@@ -207,12 +191,8 @@ public class Robot extends IterativeRobot {
     	else{
     		booCount2 = false;
     	}
-    	
     
     	driveTrain.drive(leftYAxisValue, rightYAxisValue, rightXAxisValue);
-        //driveTrain.getRightDriveEncoder();
-       // driveTrain.getLeftDriveEncoder();
-        driveTrain.getDriveGyro();
         
         if(operatorController.getRawButton(7)){
     		arm.setArmMode(0);
@@ -225,8 +205,7 @@ public class Robot extends IterativeRobot {
     	}
         arm.move(operatorController.getRawButton(1), operatorController.getRawButton(4));
         arm.intakeRoller(operatorController.getRawButton(5), operatorController.getRawButton(6));
-        // arm.readEncoder();
-        
+      
         this.maintainState();
     }
     
@@ -239,5 +218,10 @@ public class Robot extends IterativeRobot {
     
     public void maintainState() {
     	arm.maintainState();
+    }
+    
+    public void updateDashboard(){
+    	SmartDashboard.putNumber("Gyro", driveTrain.getDriveGyro());
+    	SmartDashboard.putNumber("ArmPosition", arm.getEncoder());
     }
 }

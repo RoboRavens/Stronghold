@@ -96,25 +96,8 @@ public class RobotArm {
     
     public boolean rollerHasBoulder() {
     	return rollerHasBoulderSwitch.get();
-    }
-	
-/*    public void armPosition(boolean up, boolean down) {
-    	
-    	if (up) {
-    		targetPosition = 50000;
-    		startPosition = ArmLeftSide.getEncPosition();
-    	}
-    	if (down) {
-    		targetPosition = 1;
-    		startPosition = ArmLeftSide.getEncPosition();
-    	}
+    }	
 
-        //powerToMotor = armEncoder.power(startPosition, targetPosition, ArmLeftSide.getEncPosition(), 0);
-        System.out.println("Target Position:" + targetPosition +" Encoder:" + ArmLeftSide.getEncPosition() + " Power:" + powerToMotor);
-        ArmLeftSide.set(-powerToMotor/3);
-    	//ArmRightSide.set(powerToMotor);
-    } */
-    
     public void armPID(boolean up, boolean down) {
     	if (up) {
     		targetPosition=1000;
@@ -130,9 +113,8 @@ public class RobotArm {
      	ArmLeftSide.set(1);
     }
     
-    
-    public void readEncoder(){
-    	  System.out.println(" Encoder:" + ArmRightSide.getEncPosition());
+    public double getEncoder(){
+    	  return ArmRightSide.getEncPosition();
     }
     
     
@@ -141,7 +123,6 @@ public class RobotArm {
     	ArmRightSide.setPosition(0);
     }
     
-
     public void intakeRoller(boolean in, boolean out) {
     	
     	double rollerSpeed = 0;

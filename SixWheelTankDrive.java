@@ -14,15 +14,6 @@ public class SixWheelTankDrive {
 	RavenTalon driveLeft2;
 	RavenTalon driveLeftInverted;
 	
-	/*
-	Talon driveRight1;
-	Talon driveRight2;
-	Talon driveRightInverted;
-	Talon driveLeft1;
-	Talon driveLeft2;
-	Talon driveLeftInverted;
-	*/
-	
 	Encoder leftDriveEncoder;
     Encoder rightDriveEncoder;
     
@@ -42,7 +33,7 @@ public class SixWheelTankDrive {
 		// I believe the driver station cycles at 50hz, so a rate of .02
 		// means it takes one second to go from output voltage of 1 to 0.
 		// Setting to .01 now for more obvious visual detection in testing.
-		slewRate = .02;
+		slewRate = .2;
 		
 		driveRight1 = new RavenTalon(0, slewRate);
 		driveRight2 = new RavenTalon(1, slewRate);
@@ -50,17 +41,6 @@ public class SixWheelTankDrive {
 		driveLeft1 = new RavenTalon(3, slewRate);
 		driveLeft2 = new RavenTalon(4, slewRate);
 		driveLeftInverted = new RavenTalon(5, slewRate);
-		
-		
-		
-		/*
-		driveRight1 = new Talon(0);
-		driveRight2 = new Talon(1);
-		driveRightInverted = new Talon(2);
-		driveLeft1 = new Talon(3);
-		driveLeft2 = new Talon(4);
-		driveLeftInverted = new Talon(5);
-		*/
 		
 		orientationGyro = new AnalogGyro(1);
 		gyroCooldownTimer = new Timer();
@@ -116,12 +96,6 @@ public class SixWheelTankDrive {
     	
     	this.setSlewRate(Math.abs(this.calibrationStick.getZ() * 2));
     	
-    	// double turn = Math.abs(left - right);
-    	
-    	//System.out.println("Left: " + left + " right: " + rightX);
-    	
-    	
-    	
     	switch (driveMode) {
     		case 0:
     			bulldozerTank(left, rightY);
@@ -156,42 +130,29 @@ public class SixWheelTankDrive {
     		turn *= 0.5;
     	}
     	
-    	// double turn = Math.abs(movement - right);
-    	
         double gyroAdjust = getTurnableGyroAdjustment(turn); 
     	
-    	//gyroAdjust = gyroAdjustment(right); 
-    	
-       // System.out.println("Gyro adjust: " + gyroAdjust + " gyro: " + this.orientationGyro.getAngle());
-        
-        //gyroAdjust = 0;
-        
+    	// System.out.println("Gyro adjust: " + gyroAdjust + " gyro: " + this.orientationGyro.getAngle());
+             
         driveLeft1.set((movement - turn) * - 1 - gyroAdjust);
     	driveLeft2.set((movement - turn)  * -1 - gyroAdjust);
     	driveLeftInverted.set((movement - turn) + gyroAdjust);
     	driveRight1.set((movement + turn) - gyroAdjust);
     	driveRight2.set((movement + turn) - gyroAdjust);
     	driveRightInverted.set((movement + turn) * -1 + gyroAdjust);
-}
-    
-    public void driveOutput() {
-    	
     }
     
 	public int getRightDriveEncoder(){
-		System.out.println(rightDriveEncoder.get());
 		return rightDriveEncoder.get();
 	}
 	
 	public int getLeftDriveEncoder(){
-		System.out.println(leftDriveEncoder.get());
 		return leftDriveEncoder.get();
 	}    
 
 
     public double getDriveGyro() {
-    	System.out.println("Gyro angle: " + Math.round(orientationGyro.getAngle()) + " Gyro mode: " + gyroMode);
-    	return orientationGyro.getAngle();
+    	return orientationGyro.getAngle() % 360;
     }
     
     public void resetDriveGyro() {
@@ -199,8 +160,6 @@ public class SixWheelTankDrive {
     }
     
     public double setGyroZero(){
-//    	return orientationGyro.getAngle();
-    	
     	this.gyroZero = orientationGyro.getAngle();
     	
     	return gyroZero;
@@ -267,14 +226,10 @@ public class SixWheelTankDrive {
     	// Mod again in case the directional snippet was applied.
     	gyroAdjust = Math.round(gyroAdjust) % 360;
     	
-    	
     	gyroAdjust *= adjustmentScaleFactor;
-    	
-        System.out.println("Gyro adjust: " + gyroAdjust + " gyro: " + this.orientationGyro.getAngle() +  "Zero" + gyroZero);
-    	
+    	  	
 //    	return 0;
 	    return gyroAdjust;
     }
-
 }
 
