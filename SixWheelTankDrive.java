@@ -62,7 +62,7 @@ public class SixWheelTankDrive {
 		driveLeftInverted = new Talon(5);
 		*/
 		
-		orientationGyro = new AnalogGyro(0);
+		orientationGyro = new AnalogGyro(1);
 		gyroCooldownTimer = new Timer();
 		
 		leftDriveEncoder = new Encoder(0, 1);
@@ -99,6 +99,8 @@ public class SixWheelTankDrive {
 	}
 	
 	public void setSlewRate(double slewRate) {
+		
+		slewRate = .35;
 		driveRight1.setSlewRate(slewRate);
 		driveRight2.setSlewRate(slewRate);
 		driveRightInverted.setSlewRate(slewRate);
@@ -160,7 +162,7 @@ public class SixWheelTankDrive {
     	
     	//gyroAdjust = gyroAdjustment(right); 
     	
-        System.out.println("Gyro adjust: " + gyroAdjust + " gyro: " + this.orientationGyro.getAngle());
+       // System.out.println("Gyro adjust: " + gyroAdjust + " gyro: " + this.orientationGyro.getAngle());
         
         //gyroAdjust = 0;
         
@@ -188,7 +190,7 @@ public class SixWheelTankDrive {
 
 
     public double getDriveGyro() {
-    	//System.out.println("Gyro angle: " + Math.round(orientationGyro.getAngle()) + " Gyro mode: " + gyroMode);
+    	System.out.println("Gyro angle: " + Math.round(orientationGyro.getAngle()) + " Gyro mode: " + gyroMode);
     	return orientationGyro.getAngle();
     }
     
@@ -201,6 +203,11 @@ public class SixWheelTankDrive {
     	
     	this.gyroZero = orientationGyro.getAngle();
     	
+    	return gyroZero;
+    }
+    
+    public double setGyroZero(double angle){
+    	this.gyroZero += angle;
     	return gyroZero;
     }
 
@@ -253,8 +260,8 @@ public class SixWheelTankDrive {
     	if (gyroAdjust < -180){
     		gyroAdjust = gyroAdjust - 360;
     	}
-    	if (gyroAdjust > 180){
-    		gyroAdjust = gyroAdjust + 360;
+    	if (gyroAdjust > 180 || gyroAdjust < -180){
+    		gyroAdjust *= -1;
     	}
     	
     	// Mod again in case the directional snippet was applied.
@@ -263,7 +270,10 @@ public class SixWheelTankDrive {
     	
     	gyroAdjust *= adjustmentScaleFactor;
     	
-		return gyroAdjust;
+        System.out.println("Gyro adjust: " + gyroAdjust + " gyro: " + this.orientationGyro.getAngle() +  "Zero" + gyroZero);
+    	
+//    	return 0;
+	    return gyroAdjust;
     }
 
 }

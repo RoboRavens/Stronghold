@@ -51,20 +51,20 @@ public class RobotArm {
 	 }
 
 	
-    public void move(boolean up, boolean down) {
+    public void move(boolean down, boolean up) {
     	switch (armMode) {
     		case 0:
-    			armJoy(up,down);
+    			armJoy(down,up);
     			break; 
     		case 1:
-    			armPID(up,down);
+    			armPID(down,up);
     			break;
     	}
     }
     
     
-    public void armJoy(boolean up, boolean down) {
-    	double baseSpeed = 1;
+    public void armJoy(boolean down, boolean up) {
+    	double baseSpeed = .5;
     	double armSpeed = 0;
     	
     	// Include limit switch calls in the if statements.
@@ -76,9 +76,23 @@ public class RobotArm {
     		armSpeed = baseSpeed * -1;
     	}
     	
-    	ArmLeftSide.set(armSpeed);
+    	ArmLeftSide.set(armSpeed);	
     	ArmRightSide.set(armSpeed);
     }
+    
+    public void armAuto(double armSpeed) {
+    	// Include limit switch calls in the if statements.
+    	if (!armUpperLimit.get()) {
+    		armSpeed = 0;
+    	}
+    	if (!armLowerLimit.get()) {
+    		armSpeed = 0;
+    	}
+    	
+    	ArmLeftSide.set(armSpeed);	
+    	ArmRightSide.set(armSpeed);
+    }
+    
     
     public boolean rollerHasBoulder() {
     	return rollerHasBoulderSwitch.get();

@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.CameraServer;
-import edu.wpi.first.wpilibj.Timer;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -25,12 +24,15 @@ public class Robot extends IterativeRobot {
 	public static OI oi;
 	SixWheelTankDrive driveTrain;
 	RobotArm arm;
+	AutonomousModes autoMode;
 	Joystick driveController;
 	Joystick operatorController;
 	Command autonomousCommand;
 	SendableChooser chooser;
 	CameraServer server;
-  Timer autoTimer;
+	String autoFromDashboard;
+    boolean booCount1;
+    boolean booCount2;
   
   public Robot() {
 	server = CameraServer.getInstance();
@@ -49,14 +51,17 @@ public class Robot extends IterativeRobot {
         // chooser.addDefault("Default Auto", new ExampleCommand());
 //        chooser.addObject("My Auto", new MyAutoCommand());
         SmartDashboard.putData("Auto mode", chooser);
-                
+        
         driveController = new Joystick(0);
         operatorController = new Joystick(1);
 
         driveTrain = new SixWheelTankDrive();
         arm = new RobotArm();
+        autoMode = new AutonomousModes(arm, driveTrain);
+        booCount1 = false;
+        booCount2 = false;
+       
         
-        autoTimer = new Timer();
         
         
     }
@@ -74,7 +79,27 @@ public class Robot extends IterativeRobot {
 		Scheduler.getInstance().run();
 		this.maintainState();
 		
+        // String stringZero = SmartDashboard.getString("DB/String 0", "myDefaultData");
+		autoFromDashboard = SmartDashboard.getString("DB/String 0", "myDefaultData");
 		
+		//check input
+		switch (autoFromDashboard){
+		case "RT":
+			SmartDashboard.putString("DB/String 1", autoFromDashboard);
+			break;
+		case "LB":
+			SmartDashboard.putString("DB/String 1", autoFromDashboard);
+			break;
+		case "PT":
+			SmartDashboard.putString("DB/String 1", autoFromDashboard);
+			break;
+		case "BT":
+			SmartDashboard.putString("DB/String 1", autoFromDashboard);
+			break;
+		default:
+			SmartDashboard.putString("DB/String 1", "Error");
+    }
+
 		//arm.readEncoder();
 //		driveTrain.getRightDriveEncoder();
     //    driveTrain.getLeftDriveEncoder();
@@ -92,9 +117,9 @@ public class Robot extends IterativeRobot {
     public void autonomousInit() {
         autonomousCommand = (Command) chooser.getSelected();
         
+        autoMode.startTimer();
         driveTrain.resetDriveGyro();
-        autoTimer.start();
-        
+                
 		/* String autoSelected = SmartDashboard.getString("Auto Selector", "Default");
 		switch(autoSelected) {
 		case "My Auto":
@@ -105,7 +130,7 @@ public class Robot extends IterativeRobot {
 			autonomousCommand = new ExampleCommand();
 			break;
 		} */
-    	
+
     	// schedule the autonomous command (example)
         if (autonomousCommand != null) autonomousCommand.start();
     }
@@ -116,25 +141,29 @@ public class Robot extends IterativeRobot {
     public void autonomousPeriodic() {
         Scheduler.getInstance().run();
         
-        // Move the arm down.
-        // The limit switches will turn it off when it gets to the bottom of its travel.
-        arm.move(0, 1);
-                
-        if (autoTimer.get() < 5) {
-          // Drive straight backward.
-          driveTrain.drive(-1, 0, 0);
-        }
-        else {
-          // Stop the robot.
-          driveTrain.drive(0, 0, 0);
+        switch (autoFromDashboard){
+    		case "RT":
+    			autoMode.roughTerrain();
+    			break;
+    		case "LB":
+    			autoMode.lowBar();
+    			break;
+    		case "PT":
+    			autoMode.porty();
+    			break;
+    		case "BT":
+    			autoMode.beta();
+    			break;
         }
     }
-
+    
+    
     public void teleopInit() {
 		// This makes sure that the autonomous stops running when
         // teleop starts running. If you want the autonomous to 
         // continue until interrupted by another command, remove
         // this line or comment it out.
+    	
         if (autonomousCommand != null) autonomousCommand.cancel();
     }
 
@@ -148,10 +177,10 @@ public class Robot extends IterativeRobot {
     	double rightXAxisValue = driveController.getRawAxis(4);
     	
     	if(driveController.getRawButton(7)){
-    		driveTrain.setDriveMode(0);
+    		driveTrain.setGyroMode(0);
     	}
     	if(driveController.getRawButton(8)){
-    		driveTrain.setDriveMode(1);
+    //		driveTrain.setGyroMode(1);
     	}
     	if(driveController.getRawButton(5) || driveController.getRawButton(6)){
     		driveTrain.setLimitedPower(1);
@@ -160,12 +189,27 @@ public class Robot extends IterativeRobot {
     		driveTrain.setLimitedPower(0);
     	}
     	if(driveController.getRawButton(2)){
-    		driveTrain.setGyroMode(0);
+    		if(!booCount1){
+    			driveTrain.setGyroZero(90);
+    			booCount1 = true;
+    		}
     	}
+    	else{
+    		booCount1 = false;
+    	}
+    	
     	if(driveController.getRawButton(3)){
-    		driveTrain.setGyroMode(1);
+    		if(!booCount2){
+    			driveTrain.setGyroZero(-90);
+    			booCount2 = true;
+    		}
     	}
-        driveTrain.drive(leftYAxisValue, rightYAxisValue, rightXAxisValue);
+    	else{
+    		booCount2 = false;
+    	}
+    	
+    
+    	driveTrain.drive(leftYAxisValue, rightYAxisValue, rightXAxisValue);
         //driveTrain.getRightDriveEncoder();
        // driveTrain.getLeftDriveEncoder();
         driveTrain.getDriveGyro();
@@ -174,7 +218,7 @@ public class Robot extends IterativeRobot {
     		arm.setArmMode(0);
     	}
         if(operatorController.getRawButton(8)){
-    		arm.setArmMode(1);
+    		//arm.setArmMode(1);
     	}
         if(operatorController.getRawButton(2)){
     		arm.resetEncoder();

@@ -1,18 +1,31 @@
 package org.usfirst.frc.team1188.robot;
 
 public class EncoderToMotor {
+	protected double minimumOutput;
+	protected double maximumOutput;
+	protected double startPosition;
+	protected double adjustmentFactor;
 
-	public double power(double startPosition,double targetPosition, double encoderPosition, double minimumOutput) {
+	public EncoderToMotor(double minimum, double adjustmentFactor){
+		this.minimumOutput = minimum;
+		this.adjustmentFactor = adjustmentFactor;
+	}
+	
+	public void setMax(double maximum){
+		this.maximumOutput = maximum;
+	}
+	
+	public double power(double targetPosition, double encoderPosition) {
 		double targetDistance, distanceTraveled, powerToMotors = 0;
 		targetDistance = targetPosition - startPosition;
 		distanceTraveled = encoderPosition - startPosition;
-		powerToMotors = (targetDistance - distanceTraveled) / Math.abs(targetDistance);
+		powerToMotors = (targetDistance - distanceTraveled) * adjustmentFactor;
 
 		//scale output to range
-		if(powerToMotors > 1)
-			powerToMotors = 1;
-		if(powerToMotors < -1)
-			powerToMotors = -1;
+		if(powerToMotors > maximumOutput)
+			powerToMotors = maximumOutput;
+		if(powerToMotors < -maximumOutput)
+			powerToMotors = -maximumOutput;
 		if(powerToMotors > -minimumOutput && powerToMotors < minimumOutput)
 			powerToMotors = 0;
 		return powerToMotors;
