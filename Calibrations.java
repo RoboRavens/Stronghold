@@ -1,5 +1,7 @@
 package org.usfirst.frc.team1188.robot;
 
+import edu.wpi.first.wpilibj.interfaces.Accelerometer.Range;
+
 public final class Calibrations {
 	public static double slewRate = .35;
 	public static double cutPowerModeMovementRatio = .3;
@@ -38,4 +40,33 @@ public final class Calibrations {
 	
 	public static final int armDownTargetPosition = 1000;
 	public static final int armUpTargetPosition = 0;
+	
+	// Drive encoders (INCORRECT, NEEDS TO BE DETERMINED)
+	public static final int driveEncoderTicksPerRevolution = 0;
+	public static final double driveWheelCircumferenceInches = 7.5;
+	public static final double driveEncoderTicksPerInch = (double) Calibrations.driveEncoderTicksPerRevolution / Calibrations.driveWheelCircumferenceInches;
+	
+	// Accelerometer detection of robot surface (batter, floor, etc.)
+	public static final Range accelerometerRange = Range.k8G;
+	
+	// INCORRECT, NEEDS TO BE DETERMINED. GUESSES BASED OFF OF 1G ON FLOOR.
+	public static final double floorRangeMinimum = .95;
+	public static final double floorRangeMaximum = 1.05;
+	
+	public static final double batterRangeMinimum = .85;
+	public static final double batterRangeMaximum = .95;
+	
+	// Camera
+	public static final int cameraQuality = 50;
+	
+	// Direction magic numbers
+	public static final int drivingForward = 1;
+	public static final int drivingBackward = -1;
+	
+	// Until we have more genuine motion profiling capabilities, we'll use this.
+	// This is "feet necessary to decelerate per 1 magnitude of motor output."
+	// Problems with this include that motor output is acceleration, but necessary
+	// deceleration distance is correlated with distance.
+	public static final double decelerationInchesPerMotorOutputMagnitude = 18;
+	public static final double decelerationTicksPerMotorOutputMagnitude = Calibrations.decelerationInchesPerMotorOutputMagnitude * Calibrations.driveEncoderTicksPerInch;
 }

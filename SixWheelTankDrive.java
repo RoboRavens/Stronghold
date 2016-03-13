@@ -24,15 +24,21 @@ public class SixWheelTankDrive {
 	protected int gyroMode;
 	protected int limitedPower;
 	protected double gyroZero;
-	protected double orientation;
+	protected double orientation = 0;
 	protected double slewRate;
 	
-	Joystick calibrationStick = new Joystick(3);
+	Joystick calibrationStick = new Joystick(RobotMap.calibrationJoystick);
+	
+	protected int netEncoderTicksTraveled = 0;
+	protected int targetNetEncoderTicksTraveled = 0;
+	protected boolean automatedDrivingEnabled = false;
+	protected int automatedDrivingDirection = Calibrations.drivingForward;
+	protected double automatedDrivingSpeed = 0;
+	
+	protected int leftEncoderReferencePoint = 0;
+	protected int rightEncoderReferencePoint = 0;
 	
 	public SixWheelTankDrive(){
-		// I believe the driver station cycles at 50hz, so a rate of .02
-		// means it takes one second to go from output voltage of 1 to 0.
-		// Setting to .01 now for more obvious visual detection in testing.
 		slewRate = Calibrations.slewRate;
 		
 		driveRight1 = new RavenTalon(RobotMap.rightBigCim1Channel, slewRate);
@@ -52,7 +58,6 @@ public class SixWheelTankDrive {
 		setLimitedPower(0);
 		setGyroMode(Calibrations.defaultGyroMode);
 		gyroZero = setGyroZero();
-		orientation = 0;
 		
 		resetDriveGyro();
 	}
@@ -236,4 +241,64 @@ public class SixWheelTankDrive {
     	
         return gyroAdjust;
     }
+    
+    public void driveForwardInches(double inches, int direction, double speed) {
+    	leftEncoderReferencePoint = this.leftDriveEncoder.get();
+    	rightEncoderReferencePoint = this.rightDriveEncoder.get();
+    	
+    	int targetEncoderTicks = (int) Math.round(inches * Calibrations.driveEncoderTicksPerInch);
+    	this.targetNetEncoderTicksTraveled = targetEncoderTicks;
+    	this.automatedDrivingEnabled = true;
+    	this.automatedDrivingDirection = direction;
+    	this.automatedDrivingSpeed = speed;
+    }
+    
+    public void maintainState() {
+    	// Maintain state only does things while automated driving is enabled.
+    	if (automatedDrivingEnabled == false) {
+    		return;
+    	}
+    	
+    	this.maintainEncoders();
+    	
+    	// Check if we've made it to the destination.
+    	if (netEncoderTicksTraveled <= targetNetEncoderTicksTraveled) {
+    		automatedDrivingEnabled = false;
+    		return;
+    	}
+    	
+    	
+    	// Automated driving: confirm direction, and set power based on speed.
+    	// But, if within deceleration zone, start decelerating using "poor man's PID".
+    	double powerCoefficient = getPowerCoefficient();
+    	
+    	double power = this.automatedDrivingSpeed * powerCoefficient;
+    	
+    	power *= this.automatedDrivingDirection;
+
+    	this.fpsTank(power, 0);    	
+    }
+    
+    public void maintainEncoders() {
+    	int leftEncoderTicks = this.leftDriveEncoder.get() - this.leftEncoderReferencePoint;
+    	int rightEncoderTicks = this.rightDriveEncoder.get() - this.rightEncoderReferencePoint;
+    	
+    	this.netEncoderTicksTraveled = leftEncoderTicks + rightEncoderTicks / 2;
+    }
+    
+    public double getPowerCoefficient() {
+    	double decelerationRangeEncoderTicks = Calibrations.decelerationTicksPerMotorOutputMagnitude * this.automatedDrivingSpeed;
+    	
+    	int ticksToGo = targetNetEncoderTicksTraveled - netEncoderTicksTraveled;
+    	
+    	// Any power cuts will be applied through this coefficient. 1 means no cuts.
+    	double powerCoefficient = 1;
+    	
+    	// The power coefficient will be what percent of the deceleration range has been
+    	// is yet to be traversed, but never higher than one.
+    	powerCoefficient = Math.min(1, ticksToGo / decelerationRangeEncoderTicks);
+    	
+    	return powerCoefficient;
+    }
+    
 }

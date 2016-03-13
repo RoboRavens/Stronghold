@@ -1,18 +1,39 @@
 package org.usfirst.frc.team1188.robot;
-/**
- * The RobotMap is a mapping from the ports sensors and actuators are wired into
- * to a variable name. This provides flexibility changing wiring, makes checking
- * the wiring easier and significantly reduces the number of magic numbers
- * floating around.
- */
+
 public class RobotMap {
-    // For example to map the left and right motors, you could define the
-    // following variables to use with your drivetrain subsystem.
-    // public static int leftMotor = 1;
-    // public static int rightMotor = 2;
-    
-    // If you are using multiple modules, make sure to define both the port
-    // number and the module. For example you with a rangefinder:
-    // public static int rangefinderPort = 1;
-    // public static int rangefinderModule = 1;
+	// Joysticks
+	public static final int driverJoystick = 0;
+	public static final int operatorJoystick = 1;
+	public static final int calibrationJoystick = 3;
+	
+	// Drive motors
+	public static final int rightBigCim1Channel = 0;
+	public static final int rightBigCim2Channel = 1;
+	public static final int rightMiniCimChannel = 2;
+	
+	public static final int leftBigCim1Channel = 3;
+	public static final int leftBigCim2Channel = 4;
+	public static final int leftMiniCimChannel = 5;
+	
+	// Drive encoders
+	public static final int leftDriveEncoder1 = 0;
+	public static final int leftDriveEncoder2 = 1;
+	public static final int rightDriveEncoder1 = 2;
+	public static final int rightDriveEncoder2 = 3;
+
+	// Arm CAN talons
+	public static final int masterArmTalonId = 1;
+	public static final int followerArmTalonId = 0;
+	public static final int rollerTalonId = 2;
+	
+	// Arm limit switches
+	public static final int armLowerLimitChannel = 4;
+	public static final int armUpperLimitChannel = 5;
+	
+	// Boulder detection switch
+	public static final int boulderDetectionSensorChannel = 6;
+	
+	// Camera
+	public static final String cameraName = "cam0";
+
 }

@@ -4,22 +4,12 @@ import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
-import edu.wpi.first.wpilibj.interfaces.Accelerometer.Range;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
-// import org.usfirst.frc.team1188.robot.commands.ExampleCommand;
-// import org.usfirst.frc.team1188.robot.subsystems.ExampleSubsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.ADXL362;
 import edu.wpi.first.wpilibj.CameraServer;
 
-/**
- * The VM is configured to automatically run this class, and to call the
- * functions corresponding to each mode, as described in the IterativeRobot
- * documentation. If you change the name of this class or the package after
- * creating this project, you must also update the manifest file in the resource
- * directory.
- */
 public class Robot extends IterativeRobot {
 	public static OI oi;
 	
@@ -41,14 +31,12 @@ public class Robot extends IterativeRobot {
     boolean booCount1;
     boolean booCount2;
     
-    RavenAccelerometer accelerometer;
-        
-  
+    RavenAccelerometer accelerometer;        
+    
   public Robot() {
 	server = CameraServer.getInstance();
-	server.setQuality(50);
-	//the camera name (ex "cam0") can be found through the roborio web interface
-	server.startAutomaticCapture("cam0");
+	server.setQuality(Calibrations.cameraQuality);
+	server.startAutomaticCapture(RobotMap.cameraName);
   }
   
     /**
@@ -58,12 +46,10 @@ public class Robot extends IterativeRobot {
     public void robotInit() {
 		oi = new OI();
         chooser = new SendableChooser();
-        // chooser.addDefault("Default Auto", new ExampleCommand());
-//        chooser.addObject("My Auto", new MyAutoCommand());
         SmartDashboard.putData("Auto mode", chooser);
         
-        driveController = new Joystick(0);
-        operatorController = new Joystick(1);
+        driveController = new Joystick(RobotMap.driverJoystick);
+        operatorController = new Joystick(RobotMap.operatorJoystick);
 
         driveTrain = new SixWheelTankDrive();
         arm = new RobotArm();
@@ -73,7 +59,7 @@ public class Robot extends IterativeRobot {
         booCount1 = false;
         booCount2 = false;
        
-        ADXL362 adxl362 = new ADXL362(Range.k8G);
+        ADXL362 adxl362 = new ADXL362(Calibrations.accelerometerRange);
         accelerometer = new RavenAccelerometer(adxl362);
     }
         
@@ -146,9 +132,6 @@ public class Robot extends IterativeRobot {
         if (autonomousCommand != null) autonomousCommand.start();
     }
 
-    /**
-     * This function is called periodically during autonomous
-     */
     public void autonomousPeriodic() {
         Scheduler.getInstance().run();
         
