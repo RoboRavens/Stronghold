@@ -42,7 +42,7 @@ public class SixWheelTankDrive {
 		// I believe the driver station cycles at 50hz, so a rate of .02
 		// means it takes one second to go from output voltage of 1 to 0.
 		// Setting to .01 now for more obvious visual detection in testing.
-		slewRate = .02;
+		slewRate = Calibrations.slewRate;
 		
 		driveRight1 = new RavenTalon(0, slewRate);
 		driveRight2 = new RavenTalon(1, slewRate);
@@ -100,7 +100,7 @@ public class SixWheelTankDrive {
 	
 	public void setSlewRate(double slewRate) {
 		
-		slewRate = .35;
+		slewRate = Calibrations.slewRate;
 		driveRight1.setSlewRate(slewRate);
 		driveRight2.setSlewRate(slewRate);
 		driveRightInverted.setSlewRate(slewRate);
@@ -137,8 +137,8 @@ public class SixWheelTankDrive {
     	//invert left drive train
     	left *= -1;
     	if (limitedPower == 1){
-    		right *= 0.3;
-    		left *= 0.5;
+    		left *= Calibrations.cutPowerModeMovementRatio;
+    		right *= Calibrations.cutPowerModeTurnRatio;
     	}
     	
     	driveLeft1.set(left);
@@ -152,8 +152,8 @@ public class SixWheelTankDrive {
     public void fpsTank(double movement, double turn) {
     	
     	if (limitedPower == 1){
-    		movement *= 0.3;
-    		turn *= 0.5;
+    		movement *= Calibrations.cutPowerModeMovementRatio;
+    		turn *= Calibrations.cutPowerModeTurnRatio;
     	}
     	
     	// double turn = Math.abs(movement - right);
@@ -216,10 +216,10 @@ public class SixWheelTankDrive {
     	
     	boolean adjust = false;
     	
-    	if (time > 0 && time < 1.0) {
+    	if (time > 0 && time < Calibrations.gyroCooldownTimerTime) {
     		adjust = true;
     	}
-    	else if (time > 1.0) {
+    	else if (time > Calibrations.gyroCooldownTimerTime) {
     		gyroCooldownTimer.stop();
     	}
     	
@@ -250,7 +250,7 @@ public class SixWheelTankDrive {
     		return 0;
     	}
     	
-    	double adjustmentScaleFactor = 0.03;             // tune to robot
+    	double adjustmentScaleFactor = Calibrations.gyroAdjustmentScaleFactor;     // tune to robot
     	
     	// Mod to eliminate extra rotations.
     	double gyroAdjust = (Math.round(orientationGyro.getAngle()) - gyroZero) % 360;
