@@ -25,6 +25,7 @@ public class Robot extends IterativeRobot {
 	
 	SixWheelTankDrive driveTrain;
 	RobotArm arm;
+	Lighting lighting;
 	
 	Joystick driveController;
 	Joystick operatorController;
@@ -41,7 +42,7 @@ public class Robot extends IterativeRobot {
     boolean booCount2;
     
     RavenAccelerometer accelerometer;
-    
+        
   
   public Robot() {
 	server = CameraServer.getInstance();
@@ -66,6 +67,8 @@ public class Robot extends IterativeRobot {
 
         driveTrain = new SixWheelTankDrive();
         arm = new RobotArm();
+        lighting = new Lighting();
+        
         autoMode = new AutonomousModes(arm, driveTrain);
         booCount1 = false;
         booCount2 = false;
@@ -248,5 +251,6 @@ public class Robot extends IterativeRobot {
     public void maintainState() {
     	arm.maintainState();
     	accelerometer.maintainState();
+    	lighting.maintainState();
     }
 }
