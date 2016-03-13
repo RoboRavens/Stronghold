@@ -13,16 +13,7 @@ public class SixWheelTankDrive {
 	RavenTalon driveLeft1;
 	RavenTalon driveLeft2;
 	RavenTalon driveLeftInverted;
-	
-	/*
-	Talon driveRight1;
-	Talon driveRight2;
-	Talon driveRightInverted;
-	Talon driveLeft1;
-	Talon driveLeft2;
-	Talon driveLeftInverted;
-	*/
-	
+
 	Encoder leftDriveEncoder;
     Encoder rightDriveEncoder;
     
@@ -44,32 +35,22 @@ public class SixWheelTankDrive {
 		// Setting to .01 now for more obvious visual detection in testing.
 		slewRate = Calibrations.slewRate;
 		
-		driveRight1 = new RavenTalon(0, slewRate);
-		driveRight2 = new RavenTalon(1, slewRate);
-		driveRightInverted = new RavenTalon(2, slewRate);
-		driveLeft1 = new RavenTalon(3, slewRate);
-		driveLeft2 = new RavenTalon(4, slewRate);
-		driveLeftInverted = new RavenTalon(5, slewRate);
-		
-		
-		
-		/*
-		driveRight1 = new Talon(0);
-		driveRight2 = new Talon(1);
-		driveRightInverted = new Talon(2);
-		driveLeft1 = new Talon(3);
-		driveLeft2 = new Talon(4);
-		driveLeftInverted = new Talon(5);
-		*/
+		driveRight1 = new RavenTalon(RobotMap.rightBigCim1Channel, slewRate);
+		driveRight2 = new RavenTalon(RobotMap.rightBigCim2Channel, slewRate);
+		driveRightInverted = new RavenTalon(RobotMap.rightMiniCimChannel, slewRate);
+		driveLeft1 = new RavenTalon(RobotMap.leftBigCim1Channel, slewRate);
+		driveLeft2 = new RavenTalon(RobotMap.leftBigCim2Channel, slewRate);
+		driveLeftInverted = new RavenTalon(RobotMap.leftMiniCimChannel, slewRate);
 		
 		orientationGyro = new AnalogGyro(1);
 		gyroCooldownTimer = new Timer();
 		
-		leftDriveEncoder = new Encoder(0, 1);
-		rightDriveEncoder = new Encoder(2, 3);
-		setDriveMode(1);
+		leftDriveEncoder = new Encoder(RobotMap.leftDriveEncoder1, RobotMap.leftDriveEncoder2);
+		rightDriveEncoder = new Encoder(RobotMap.rightDriveEncoder1, RobotMap.rightDriveEncoder2);
+		
+		setDriveMode(Calibrations.defaultDriveMode);
 		setLimitedPower(0);
-		setGyroMode(0);
+		setGyroMode(Calibrations.defaultGyroMode);
 		gyroZero = setGyroZero();
 		orientation = 0;
 		
@@ -88,10 +69,10 @@ public class SixWheelTankDrive {
     	this.gyroMode = gyroMode;
     }
 	
-	public double deadzone(double input) {
+	public double deadband(double input) {
 		double output = input;
 		
-		if (Math.abs(output) < .1) {
+		if (Math.abs(output) < Calibrations.deadbandMagnitude) {
 			output = 0;
 		}
 		
@@ -110,31 +91,24 @@ public class SixWheelTankDrive {
 	}
     
     public void drive(double left, double rightY, double rightX) {
-    	left = deadzone(left);
-    	rightY = deadzone(rightY);
-    	rightX = deadzone(rightX);
+    	left = deadband(left);
+    	rightY = deadband(rightY);
+    	rightX = deadband(rightX);
     	
     	this.setSlewRate(Math.abs(this.calibrationStick.getZ() * 2));
     	
-    	// double turn = Math.abs(left - right);
-    	
-    	//System.out.println("Left: " + left + " right: " + rightX);
-    	
-    	
-    	
     	switch (driveMode) {
-    		case 0:
+    		case Calibrations.bulldozerTank:
     			bulldozerTank(left, rightY);
     			break; 
-    		case 1:
+    		case Calibrations.fpsTank:
     			fpsTank(left, rightX);
     			break;
     	}
     }
 	
 	public void bulldozerTank(double left, double right) {
-    
-    	//invert left drive train
+		// Invert the left side.
     	left *= -1;
     	if (limitedPower == 1){
     		left *= Calibrations.cutPowerModeMovementRatio;
@@ -155,16 +129,10 @@ public class SixWheelTankDrive {
     		movement *= Calibrations.cutPowerModeMovementRatio;
     		turn *= Calibrations.cutPowerModeTurnRatio;
     	}
-    	
-    	// double turn = Math.abs(movement - right);
-    	
+    	    	
         double gyroAdjust = getTurnableGyroAdjustment(turn); 
     	
-    	//gyroAdjust = gyroAdjustment(right); 
-    	
-       // System.out.println("Gyro adjust: " + gyroAdjust + " gyro: " + this.orientationGyro.getAngle());
-        
-        //gyroAdjust = 0;
+    	// System.out.println("Gyro adjust: " + gyroAdjust + " gyro: " + this.orientationGyro.getAngle());
         
         driveLeft1.set((movement - turn) * - 1 - gyroAdjust);
     	driveLeft2.set((movement - turn)  * -1 - gyroAdjust);
@@ -172,7 +140,7 @@ public class SixWheelTankDrive {
     	driveRight1.set((movement + turn) - gyroAdjust);
     	driveRight2.set((movement + turn) - gyroAdjust);
     	driveRightInverted.set((movement + turn) * -1 + gyroAdjust);
-}
+    }
     
     public void driveOutput() {
     	
@@ -188,7 +156,6 @@ public class SixWheelTankDrive {
 		return leftDriveEncoder.get();
 	}    
 
-
     public double getDriveGyro() {
     	System.out.println("Gyro angle: " + Math.round(orientationGyro.getAngle()) + " Gyro mode: " + gyroMode);
     	return orientationGyro.getAngle();
@@ -198,9 +165,7 @@ public class SixWheelTankDrive {
     	orientationGyro.reset();
     }
     
-    public double setGyroZero(){
-//    	return orientationGyro.getAngle();
-    	
+    public double setGyroZero(){    	
     	this.gyroZero = orientationGyro.getAngle();
     	
     	return gyroZero;
@@ -227,8 +192,8 @@ public class SixWheelTankDrive {
     }
 
     public double getTurnableGyroAdjustment(double turn){
-    	// If the gyro mode is zero, just return immediately.
-    	if (gyroMode == 0) {
+    	// If the gyro is in disabled mode, just return immediately.
+    	if (gyroMode == Calibrations.gyroDisabled) {
     		return 0;
     	}
     	
@@ -245,13 +210,11 @@ public class SixWheelTankDrive {
     }
     
     public double getStaticGyroAdjustment() {
-    	// If the gyro mode is zero, just return immediately.
-    	if (gyroMode == 0) {
+    	// If the gyro is in disabled mode, just return immediately.
+    	if (gyroMode == Calibrations.gyroDisabled) {
     		return 0;
     	}
-    	
-    	double adjustmentScaleFactor = Calibrations.gyroAdjustmentScaleFactor;     // tune to robot
-    	
+    	    	
     	// Mod to eliminate extra rotations.
     	double gyroAdjust = (Math.round(orientationGyro.getAngle()) - gyroZero) % 360;
     	
@@ -267,14 +230,10 @@ public class SixWheelTankDrive {
     	// Mod again in case the directional snippet was applied.
     	gyroAdjust = Math.round(gyroAdjust) % 360;
     	
-    	
-    	gyroAdjust *= adjustmentScaleFactor;
+    	gyroAdjust *= Calibrations.gyroAdjustmentScaleFactor;
     	
         System.out.println("Gyro adjust: " + gyroAdjust + " gyro: " + this.orientationGyro.getAngle() +  "Zero" + gyroZero);
     	
-//    	return 0;
-	    return gyroAdjust;
+        return gyroAdjust;
     }
-
 }
-
