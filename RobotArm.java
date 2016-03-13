@@ -12,50 +12,46 @@ public class RobotArm {
 	BufferedDigitalInput rollerHasBoulderSwitch;
 	
 	//EncoderToMotor armEncoder;
-	int masterArmTalonId = 1;
-	int followerArmTalonId = 0;
-	int rollerTalonId = 2;
 	double startPosition = 1;
 	double targetPosition = 1;
 	double powerToMotor;
 	protected int armMode;
 	
 	public RobotArm() {
-		
-        ArmLeftSide = new CANTalon(followerArmTalonId);
-        ArmRightSide = new CANTalon(masterArmTalonId);
-        intakeRollerMotor = new CANTalon(rollerTalonId);
-        armLowerLimit = new DigitalInput(4);
-        armUpperLimit = new DigitalInput(5);
-        rollerHasBoulderSwitch = new BufferedDigitalInput(6);
+        ArmLeftSide = new CANTalon(RobotMap.followerArmTalonId);
+        ArmRightSide = new CANTalon(RobotMap.masterArmTalonId);
+        intakeRollerMotor = new CANTalon(RobotMap.rollerTalonId);
+        armLowerLimit = new DigitalInput(RobotMap.armLowerLimitChannel);
+        armUpperLimit = new DigitalInput(RobotMap.armUpperLimitChannel);
+        rollerHasBoulderSwitch = new BufferedDigitalInput(RobotMap.boulderDetectionSensorChannel);
       
 		setArmMode(0);
 		ArmRightSide.setPosition(0);	
 	}
 	
 	public void setArmMode(int armMode) {
-	    	this.armMode = armMode;
-	    	switch (this.armMode) {
-    		case 0:
+    	this.armMode = armMode;
+    	switch (this.armMode) {
+    		case Calibrations.armManualControlMode:
     	        ArmRightSide.setControlMode(0);
     	        ArmLeftSide.setControlMode(0);
-    			break; 
-    		case 1:
+    			break;
+    		case Calibrations.armPIDControlMode:
     	        ArmRightSide.setControlMode(1);
     	        ArmLeftSide.setControlMode(5);
     	        ArmRightSide.reverseOutput(true);
-    	        ArmRightSide.setPID(0.30, 0, 0);
+    	        ArmRightSide.setPID(Calibrations.armPIDLoopPValue, Calibrations.armPIDLoopIValue, Calibrations.armPIDLoopDValue);
     	        break;
     	}
 	 }
 	
     public void move(boolean down, boolean up) {
     	switch (armMode) {
-    		case 0:
-    			armJoy(down,up);
+    		case Calibrations.armManualControlMode:
+    			armJoy(down, up);
     			break; 
-    		case 1:
-    			armPID(down,up);
+    		case Calibrations.armPIDControlMode:
+    			armPID(down, up);
     			break;
     	}
     }
@@ -111,12 +107,15 @@ public class RobotArm {
     	//ArmRightSide.set(powerToMotor);
     } */
     
+    
+    // NOTE: The "up" and "down" labelings here are inconsistent.
+    // Something needs to be checked and fixed.
     public void armPID(boolean up, boolean down) {
     	if (up) {
-    		targetPosition=1000;
+    		targetPosition = Calibrations.armDownTargetPosition;
     	}
     	if (down) {
-    		targetPosition=0;
+    		targetPosition = Calibrations.armUpTargetPosition;
     	}
 
     	if(!armLowerLimit.get()){
