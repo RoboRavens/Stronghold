@@ -4,11 +4,13 @@ import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
+import edu.wpi.first.wpilibj.interfaces.Accelerometer.Range;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 // import org.usfirst.frc.team1188.robot.commands.ExampleCommand;
 // import org.usfirst.frc.team1188.robot.subsystems.ExampleSubsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.ADXL362;
 import edu.wpi.first.wpilibj.CameraServer;
 
 /**
@@ -19,20 +21,27 @@ import edu.wpi.first.wpilibj.CameraServer;
  * directory.
  */
 public class Robot extends IterativeRobot {
-
-	// public static final ExampleSubsystem exampleSubsystem = new ExampleSubsystem();
 	public static OI oi;
+	
 	SixWheelTankDrive driveTrain;
 	RobotArm arm;
-	AutonomousModes autoMode;
+	
 	Joystick driveController;
 	Joystick operatorController;
+	
+	AutonomousModes autoMode;
+	
 	Command autonomousCommand;
-	SendableChooser chooser;
-	CameraServer server;
 	String autoFromDashboard;
+	SendableChooser chooser;
+	
+	CameraServer server;
+	
     boolean booCount1;
     boolean booCount2;
+    
+    RavenAccelerometer accelerometer;
+    
   
   public Robot() {
 	server = CameraServer.getInstance();
@@ -61,9 +70,8 @@ public class Robot extends IterativeRobot {
         booCount1 = false;
         booCount2 = false;
        
-        
-        
-        
+        ADXL362 adxl362 = new ADXL362(Range.k8G);
+        accelerometer = new RavenAccelerometer(adxl362);
     }
         
 	/**
@@ -239,5 +247,6 @@ public class Robot extends IterativeRobot {
     
     public void maintainState() {
     	arm.maintainState();
+    	accelerometer.maintainState();
     }
 }
