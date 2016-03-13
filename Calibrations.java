@@ -10,5 +10,7 @@ public final class Calibrations {
 	public static double armBaseSpeed = .5;
 	public static double armRollerSpeed = 1;
 	
+	public static double lightingFlashTotalDurationMs = 1000;
+	public static double lightingFlashes = 5;
 	
 }
