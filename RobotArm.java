@@ -4,7 +4,6 @@ import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.DigitalInput;
 
 public class RobotArm {
-
 	CANTalon intakeRollerMotor;
 	CANTalon ArmLeftSide;
 	CANTalon ArmRightSide;
@@ -49,7 +48,6 @@ public class RobotArm {
     	        break;
     	}
 	 }
-
 	
     public void move(boolean down, boolean up) {
     	switch (armMode) {
@@ -62,18 +60,16 @@ public class RobotArm {
     	}
     }
     
-    
     public void armJoy(boolean down, boolean up) {
-    	double baseSpeed = .5;
     	double armSpeed = 0;
     	
     	// Include limit switch calls in the if statements.
     	if (up && armUpperLimit.get()) {
-    		armSpeed = baseSpeed;
+    		armSpeed = Calibrations.armBaseSpeed;
     	}
     	
     	if (down && armLowerLimit.get()) {
-    		armSpeed = baseSpeed * -1;
+    		armSpeed = Calibrations.armBaseSpeed * -1;
     	}
     	
     	ArmLeftSide.set(armSpeed);	
@@ -130,12 +126,9 @@ public class RobotArm {
      	ArmLeftSide.set(1);
     }
     
-    
     public void readEncoder(){
     	  System.out.println(" Encoder:" + ArmRightSide.getEncPosition());
     }
-    
-    
     
     public void resetEncoder(){
     	ArmRightSide.setPosition(0);
@@ -146,10 +139,10 @@ public class RobotArm {
     	
     	double rollerSpeed = 0;
     	if (in) {
-    		rollerSpeed = 1;
+    		rollerSpeed = Calibrations.armRollerSpeed;
     	}	
     	if (out) {
-    		rollerSpeed = -1;
+    		rollerSpeed = Calibrations.armRollerSpeed * -1;
     	}
     	 
     	intakeRollerMotor.set(rollerSpeed);
