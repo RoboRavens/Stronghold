@@ -1,6 +1,6 @@
 package org.usfirst.frc.team1188.robot;
 
-import edu.wpi.first.wpilibj.AnalogGyro;
+import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Timer;
@@ -17,7 +17,7 @@ public class SixWheelTankDrive {
 	Encoder leftDriveEncoder;
     Encoder rightDriveEncoder;
     
-    AnalogGyro orientationGyro;
+    ADXRS450_Gyro orientationGyro;
     Timer gyroCooldownTimer;
     
     protected int driveMode;
@@ -48,7 +48,7 @@ public class SixWheelTankDrive {
 		driveLeft2 = new RavenTalon(RobotMap.leftBigCim2Channel, slewRate);
 		driveLeftInverted = new RavenTalon(RobotMap.leftMiniCimChannel, slewRate);
 		
-		orientationGyro = new AnalogGyro(1);
+		orientationGyro = new ADXRS450_Gyro();
 		gyroCooldownTimer = new Timer();
 		
 		leftDriveEncoder = new Encoder(RobotMap.leftDriveEncoder1, RobotMap.leftDriveEncoder2);
