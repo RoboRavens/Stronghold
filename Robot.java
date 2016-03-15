@@ -7,20 +7,23 @@ import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
+import org.usfirst.frc.team1188.robot.AutonomousModes.*;
+
 import edu.wpi.first.wpilibj.ADXL362;
 import edu.wpi.first.wpilibj.CameraServer;
 
 public class Robot extends IterativeRobot {
 	public static OI oi;
 	
-	SixWheelTankDrive driveTrain;
-	RobotArm arm;
+	public SixWheelTankDrive driveTrain;
+	public RobotArm arm;
 	Lighting lighting;
 	
 	Joystick driveController;
 	Joystick operatorController;
 	
-	AutonomousModes autoMode;
+	AutonomousModesClass autoMode;
 	
 	Command autonomousCommand;
 	String autoFromDashboard;
@@ -31,18 +34,16 @@ public class Robot extends IterativeRobot {
     boolean booCount1;
     boolean booCount2;
     
-    RavenAccelerometer accelerometer;        
+    RavenAccelerometer accelerometer;
     
-  public Robot() {
-	server = CameraServer.getInstance();
-	server.setQuality(Calibrations.cameraQuality);
-	server.startAutomaticCapture(RobotMap.cameraName);
-  }
-  
-    /**
-     * This function is run when the robot is first started up and should be
-     * used for any initialization code.
-     */
+    IAutonomousMode autonomousMode;
+    
+    public Robot() {
+		server = CameraServer.getInstance();
+		server.setQuality(Calibrations.cameraQuality);
+		server.startAutomaticCapture(RobotMap.cameraName);
+    }
+
     public void robotInit() {
 		oi = new OI();
         chooser = new SendableChooser();
@@ -51,23 +52,18 @@ public class Robot extends IterativeRobot {
         driveController = new Joystick(RobotMap.driverJoystick);
         operatorController = new Joystick(RobotMap.operatorJoystick);
 
-        driveTrain = new SixWheelTankDrive();
+        driveTrain = new SixWheelTankDrive(this);
         arm = new RobotArm();
         lighting = new Lighting();
         
-        autoMode = new AutonomousModes(arm, driveTrain);
+        autoMode = new AutonomousModesClass(arm, driveTrain);
         booCount1 = false;
         booCount2 = false;
        
         ADXL362 adxl362 = new ADXL362(Calibrations.accelerometerRange);
         accelerometer = new RavenAccelerometer(adxl362);
     }
-        
-	/**
-     * This function is called once each time the robot enters Disabled mode.
-     * You can use it to reset any subsystem information you want to clear when
-	 * the robot is disabled.
-     */
+
     public void disabledInit(){
 
     }
@@ -116,6 +112,21 @@ public class Robot extends IterativeRobot {
         
         autoMode.startTimer();
         driveTrain.resetDriveGyro();
+        
+        switch (autoFromDashboard) {
+        	case "LG":
+        		autonomousMode = new AutonomousLowGoalScore(this);
+            	autonomousMode.init();
+            	break;
+        	default:
+        		autonomousMode = new AutonomousDoNothing();
+            	autonomousMode.init();
+            	break;
+        }
+        
+        
+        
+        
                 
 		/* String autoSelected = SmartDashboard.getString("Auto Selector", "Default");
 		switch(autoSelected) {
@@ -149,6 +160,8 @@ public class Robot extends IterativeRobot {
     			autoMode.beta();
     			break;
         }
+        
+        this.maintainAutonomousState();
     }
     
     
@@ -159,6 +172,9 @@ public class Robot extends IterativeRobot {
         // this line or comment it out.
     	
         if (autonomousCommand != null) autonomousCommand.cancel();
+        
+        // Start teleop in manual mode.
+        this.driveTrain.overrideAutomatedDriving();
     }
 
     /**
@@ -229,6 +245,11 @@ public class Robot extends IterativeRobot {
      */
     public void testPeriodic() {
         LiveWindow.run();
+    }
+    
+    public void maintainAutonomousState() {
+    	this.maintainState();
+    	autonomousMode.maintainState();
     }
     
     public void maintainState() {

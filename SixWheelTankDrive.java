@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Timer;
 
 public class SixWheelTankDrive {
+	Robot robot;
 	
 	RavenTalon driveRight1;
 	RavenTalon driveRight2;
@@ -38,7 +39,14 @@ public class SixWheelTankDrive {
 	protected int leftEncoderReferencePoint = 0;
 	protected int rightEncoderReferencePoint = 0;
 	
-	public SixWheelTankDrive(){
+	protected boolean hasHitObstacle = false;
+	protected boolean drivingThroughObstacle = false;
+	protected boolean turning = false;
+	protected boolean waiting = false;
+	
+	public SixWheelTankDrive(Robot robot) {
+		this.robot = robot;
+		
 		slewRate = Calibrations.slewRate;
 		
 		driveRight1 = new RavenTalon(RobotMap.rightBigCim1Channel, slewRate);
@@ -242,15 +250,56 @@ public class SixWheelTankDrive {
         return gyroAdjust;
     }
     
+    public void stopAndWait() {
+    	enableAutomatedDriving(0);
+    }
+    
     public void driveForwardInches(double inches, int direction, double speed) {
     	leftEncoderReferencePoint = this.leftDriveEncoder.get();
     	rightEncoderReferencePoint = this.rightDriveEncoder.get();
     	
     	int targetEncoderTicks = (int) Math.round(inches * Calibrations.driveEncoderTicksPerInch);
     	this.targetNetEncoderTicksTraveled = targetEncoderTicks;
+    	enableAutomatedDriving(direction, speed);
+    }
+    
+    public void driveUntilOverObstacle(int direction, double speed) {
+    	drivingThroughObstacle = true;
+    	enableAutomatedDriving(direction, speed);
+    }
+    
+    public void turnRelativeDegrees(double degrees) {
+    	this.setGyroZero(this.gyroZero + degrees);
     	this.automatedDrivingEnabled = true;
-    	this.automatedDrivingDirection = direction;
-    	this.automatedDrivingSpeed = speed;
+    }
+    
+    public void enableAutomatedDriving(int direction, double speed) {
+    	automatedDrivingDirection = direction;
+    	enableAutomatedDriving(speed);
+    }
+    
+    public void enableAutomatedDriving(double speed) {
+    	automatedDrivingEnabled = true;
+    	automatedDrivingSpeed = speed;
+    }
+    
+    public void overrideAutomatedDriving() {
+    	// Just disable all the automated driving variables, and
+    	// the normal drive function will immediately resume.
+    	automatedDrivingEnabled = false;
+    	drivingThroughObstacle = false;
+    	hasHitObstacle = false;
+    	turning = false;
+    	waiting = false;
+    }
+    
+    public void stop() {
+    	this.fpsTank(0, 0);
+    }
+    
+    public boolean automatedActionHasCompleted() {
+    	// Just return the opposite of automatedDrivingEnabled.
+    	return automatedDrivingEnabled == false;
     }
     
     public void maintainState() {
@@ -259,6 +308,42 @@ public class SixWheelTankDrive {
     		return;
     	}
     	
+    	if (drivingThroughObstacle) {
+    		maintainStateDrivingThroughObstacle();
+    		return;
+    	}
+    	
+    	if (turning) {
+    		maintainStateTurning();
+    		return;
+    	}
+    	
+    	if (waiting) {
+    		maintainStateWaiting();
+    		return;
+    	}
+    	
+    	maintainStateDrivingStraight();
+    }
+    
+    public void maintainStateWaiting() {
+    	this.stop();
+    }
+    
+    public void wake() {
+    	this.waiting = false;
+    	this.automatedDrivingEnabled = false;
+    }
+    
+    public void maintainStateTurning() {
+    	if (Math.abs(gyroZero - orientationGyro.getAngle()) < 3) {
+    		automatedDrivingEnabled = false;
+    		turning = false;
+    	}
+    	
+    }
+    
+    public void maintainStateDrivingStraight() {
     	this.maintainEncoders();
     	
     	// Check if we've made it to the destination.
@@ -266,7 +351,6 @@ public class SixWheelTankDrive {
     		automatedDrivingEnabled = false;
     		return;
     	}
-    	
     	
     	// Automated driving: confirm direction, and set power based on speed.
     	// But, if within deceleration zone, start decelerating using "poor man's PID".
@@ -276,7 +360,7 @@ public class SixWheelTankDrive {
     	
     	power *= this.automatedDrivingDirection;
 
-    	this.fpsTank(power, 0);    	
+    	this.fpsTank(power, 0);
     }
     
     public void maintainEncoders() {
@@ -299,6 +383,47 @@ public class SixWheelTankDrive {
     	powerCoefficient = Math.min(1, ticksToGo / decelerationRangeEncoderTicks);
     	
     	return powerCoefficient;
+    }
+    
+    public void maintainStateDrivingThroughObstacle() {
+    	double power = automatedDrivingSpeed;
+    	
+    	// Check if we've made hit the obstacle and are now on carpet.
+    	if (hasHitObstacle && robotIsOnCarpet()) {
+    		// We're through; kill automated mode.
+    		power = 0;
+    		automatedDrivingEnabled = false;
+    		hasHitObstacle = false;
+    		drivingThroughObstacle = false;
+    	}
+    	
+    	power *= automatedDrivingDirection;
+    	
+    	fpsTank(power, 0);
+    }
+    
+    public boolean robotIsOnCarpet() {
+    	double zAccel = robot.accelerometer.getZ();
+    	
+    	boolean onCarpet = false;
+    	
+    	if (zAccel >= Calibrations.carpetRangeMaximum && zAccel <= Calibrations.carpetRangeMaximum) {
+    		onCarpet = true;
+    	}
+    	
+    	return onCarpet;
+    }
+    
+    public boolean robotIsOnBatter() {
+    	double zAccel = robot.accelerometer.getZ();
+    	
+    	boolean onBatter = false;
+    	
+    	if (zAccel >= Calibrations.batterRangeMaximum && zAccel <= Calibrations.batterRangeMaximum) {
+    		onBatter = true;
+    	}
+    	
+    	return onBatter;
     }
     
 }
