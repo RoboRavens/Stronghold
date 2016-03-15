@@ -50,8 +50,8 @@ public final class Calibrations {
 	public static final Range accelerometerRange = Range.k8G;
 	
 	// INCORRECT, NEEDS TO BE DETERMINED. GUESSES BASED OFF OF 1G ON FLOOR.
-	public static final double floorRangeMinimum = .95;
-	public static final double floorRangeMaximum = 1.05;
+	public static final double carpetRangeMinimum = .95;
+	public static final double carpetRangeMaximum = 1.05;
 	
 	public static final double batterRangeMinimum = .85;
 	public static final double batterRangeMaximum = .95;
@@ -69,4 +69,13 @@ public final class Calibrations {
 	// deceleration distance is correlated with distance.
 	public static final double decelerationInchesPerMotorOutputMagnitude = 18;
 	public static final double decelerationTicksPerMotorOutputMagnitude = Calibrations.decelerationInchesPerMotorOutputMagnitude * Calibrations.driveEncoderTicksPerInch;
+	
+	// Autonomous
+	public static final double autonomousLowBarSpeed = .5;
+	public static final int driveInchesToAlignWithLowGoalFromLowBar = 60;
+	public static final int autonomousAlignmentSpeed = 1;
+	public static final double turnDegreesToAlignWithLowGoalFromLowBar = 45;
+	public static final int driveInchesToReachLowGoalFromLowBar = 84;
+	public static final int driveInchesToClearOuterworks = 12;
+	
 }

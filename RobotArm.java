@@ -2,6 +2,7 @@ package org.usfirst.frc.team1188.robot;
 
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Timer;
 
 public class RobotArm {
 	CANTalon intakeRollerMotor;
@@ -16,6 +17,10 @@ public class RobotArm {
 	double targetPosition = 1;
 	double powerToMotor;
 	protected int armMode;
+	
+	protected boolean automatedMovementEnabled = false;
+	protected boolean ejectingBall = false;
+	protected Timer ballEjectionTimer;
 	
 	public RobotArm() {
         ArmLeftSide = new CANTalon(RobotMap.followerArmTalonId);
@@ -85,6 +90,23 @@ public class RobotArm {
     	ArmRightSide.set(armSpeed);
     }
     
+    // Position is an integer; represents encoder ticks from 0.
+    public void moveArmToPosition(int position) {
+    	this.automatedMovementEnabled = true;
+    	
+    	// TODO: Implemented moving arm to encoder position.
+    }
+    
+    public void ejectBoulder() {
+    	this.automatedMovementEnabled = true;
+    	
+    }
+    
+    public boolean automatedActionHasCompleted() {
+    	// Just return the opposite of automatedMovementEnabled.
+    	return this.automatedMovementEnabled == false;
+    }
+    
     
     public boolean rollerHasBoulder() {
     	return rollerHasBoulderSwitch.get();
@@ -149,6 +171,52 @@ public class RobotArm {
     
     public void maintainState() {
     	rollerHasBoulderSwitch.maintainState();
+    	
+    	if (this.automatedMovementEnabled == false) {
+    		return;
+    	}
+    	
+    	if (this.ejectingBall) {
+    		maintainBallEjectionState();
+    	}
+    	
+    	maintainArmMovementState();
+    }
+    
+    public void maintainBallEjectionState() {
+    	this.intakeRoller(false, true);
+    	
+    	
+    	// As soon as the roller switch is false, start a timer to run the
+    	// roller for another half second.
+    	if (this.rollerHasBoulder() == false) {
+    		if (this.ballEjectionTimer.get() == 0) {
+    			this.ballEjectionTimer.start();
+    		}
+    		
+    		// If the timer has been going for a half second, shut it down.
+    		if (this.ballEjectionTimer.get() >= .5) {
+    			this.ballEjectionTimer.stop();
+    			this.ballEjectionTimer.reset();
+    			this.intakeRoller(false, false);    			
+    			this.ejectingBall = false;
+    			this.automatedMovementEnabled = false;
+    		}
+    	}
+    }
+    
+    public void maintainArmMovementState() {
+    	// TODO: Implement this method to check encoders vs target position.
+    	// 			See SixWheelTankDrive.maintainStateDrivingStraight as a reference.
+    	//			May need to add a class variable as a persistent target for the position.
+    	
+    	// For now assume the position is never reached.
+    	boolean positionReached = false;
+    	
+    	if (positionReached) {
+    		this.automatedMovementEnabled = false;
+    		return;
+    	}
     }
     
 }
