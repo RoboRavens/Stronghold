@@ -1,9 +1,10 @@
 package org.usfirst.frc.team1188.robot;
 
-import edu.wpi.first.wpilibj.ADXRS450_Gyro;
+import edu.wpi.first.wpilibj.AnalogGyro;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.interfaces.Gyro;
 
 public class SixWheelTankDrive {
 	Robot robot;
@@ -18,7 +19,7 @@ public class SixWheelTankDrive {
 	Encoder leftDriveEncoder;
     Encoder rightDriveEncoder;
     
-    ADXRS450_Gyro orientationGyro;
+    Gyro orientationGyro;
     Timer gyroCooldownTimer;
     
     protected int driveMode;
@@ -56,7 +57,10 @@ public class SixWheelTankDrive {
 		driveLeft2 = new RavenTalon(RobotMap.leftBigCim2Channel, slewRate);
 		driveLeftInverted = new RavenTalon(RobotMap.leftMiniCimChannel, slewRate);
 		
-		orientationGyro = new ADXRS450_Gyro();
+		
+		orientationGyro = new AnalogGyro(1);
+		
+		
 		gyroCooldownTimer = new Timer();
 		
 		leftDriveEncoder = new Encoder(RobotMap.leftDriveEncoder1, RobotMap.leftDriveEncoder2);
@@ -64,10 +68,15 @@ public class SixWheelTankDrive {
 		
 		setDriveMode(Calibrations.defaultDriveMode);
 		setLimitedPower(0);
+		
+		
 		setGyroMode(Calibrations.defaultGyroMode);
 		gyroZero = setGyroZero();
 		
-		resetDriveGyro();
+		// Having this line uncommented crashes the program; it won't even boot on the roborio.
+		// I'm not sure why, but it might have to do with resetting the gyro before it's done calibrating.
+		// resetDriveGyro();
+		// orientationGyro.calibrate();
 	}
 
 	public void setDriveMode(int driveMode) {
@@ -130,13 +139,14 @@ public class SixWheelTankDrive {
     	
     	driveLeft1.set(left);
     	driveLeft2.set(left);
-    	driveLeftInverted.set(left * -1);
+    	driveLeftInverted.set(left);
     	driveRight1.set(right);
     	driveRight2.set(right);
-    	driveRightInverted.set(right * -1);	
+    	driveRightInverted.set(right);	
     }
     
     public void fpsTank(double movement, double turn) {
+    	System.out.println("Gyro: " + orientationGyro.getAngle() + " Lencoder: " + this.leftDriveEncoder.get() + " Rencoder: " + this.rightDriveEncoder.get());
     	
     	if (limitedPower == 1){
     		movement *= Calibrations.cutPowerModeMovementRatio;
@@ -147,12 +157,12 @@ public class SixWheelTankDrive {
     	
     	// System.out.println("Gyro adjust: " + gyroAdjust + " gyro: " + this.orientationGyro.getAngle());
         
-        driveLeft1.set((movement - turn) * - 1 - gyroAdjust);
+        driveLeft1.set((movement - turn) * -1 - gyroAdjust);
     	driveLeft2.set((movement - turn)  * -1 - gyroAdjust);
-    	driveLeftInverted.set((movement - turn) + gyroAdjust);
+    	driveLeftInverted.set((movement - turn) * -1 - gyroAdjust);
     	driveRight1.set((movement + turn) - gyroAdjust);
     	driveRight2.set((movement + turn) - gyroAdjust);
-    	driveRightInverted.set((movement + turn) * -1 + gyroAdjust);
+    	driveRightInverted.set((movement + turn) - gyroAdjust);
     }
     
     public void driveOutput() {
@@ -170,7 +180,7 @@ public class SixWheelTankDrive {
 	}    
 
     public double getDriveGyro() {
-    	System.out.println("Gyro angle: " + Math.round(orientationGyro.getAngle()) + " Gyro mode: " + gyroMode);
+    	//System.out.println("Gyro angle: " + Math.round(orientationGyro.getAngle()) + " Gyro mode: " + gyroMode);
     	return orientationGyro.getAngle();
     }
     

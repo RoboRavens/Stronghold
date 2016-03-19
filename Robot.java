@@ -9,8 +9,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import org.usfirst.frc.team1188.robot.AutonomousModes.*;
-
-import edu.wpi.first.wpilibj.ADXL362;
+import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.wpilibj.CameraServer;
 
 public class Robot extends IterativeRobot {
@@ -54,21 +53,24 @@ public class Robot extends IterativeRobot {
 
         driveTrain = new SixWheelTankDrive(this);
         arm = new RobotArm();
+        
         lighting = new Lighting();
         
         autoMode = new AutonomousModesClass(arm, driveTrain);
         booCount1 = false;
         booCount2 = false;
        
-        ADXL362 adxl362 = new ADXL362(Calibrations.accelerometerRange);
-        accelerometer = new RavenAccelerometer(adxl362);
+        BuiltInAccelerometer rioAccelerometer = new BuiltInAccelerometer();
+        accelerometer = new RavenAccelerometer(rioAccelerometer);
+    	System.out.println("Test.");
     }
 
     public void disabledInit(){
-
+    	System.out.println("Disabled Init.");
     }
 	
 	public void disabledPeriodic() {
+		// this.lighting.mainArray.set(Value.kOn);
 		Scheduler.getInstance().run();
 		this.maintainState();
 		
@@ -96,6 +98,10 @@ public class Robot extends IterativeRobot {
 		//arm.readEncoder();
 //		driveTrain.getRightDriveEncoder();
     //    driveTrain.getLeftDriveEncoder();
+     
+		
+		//System.out.println("Disabled periodic.");
+		// System.out.println(driveTrain.orientationGyro.getAngle());
 	}
 
 	/**
@@ -144,6 +150,7 @@ public class Robot extends IterativeRobot {
     }
 
     public void autonomousPeriodic() {
+    	// this.lighting.mainArray.set(Value.kReverse);
         Scheduler.getInstance().run();
         
         switch (autoFromDashboard){
@@ -181,6 +188,19 @@ public class Robot extends IterativeRobot {
      * This function is called periodically during operator control
      */
     public void teleopPeriodic() {
+
+    	// System.out.println(this.accelerometer.getZ());
+    	
+    	if (this.accelerometer.getZ() < .99 || this.accelerometer.getZ() > 1.1) {
+    		this.lighting.turnOn();
+    	}
+    	else {
+    		this.lighting.turnOff();
+    	}
+    	
+    	// this.lighting.turnOn();
+    	// this.lighting.mainArray.set(Value.kForward);
+    	
         Scheduler.getInstance().run();
         double leftYAxisValue = driveController.getRawAxis(1);
     	double rightYAxisValue = driveController.getRawAxis(5);
@@ -228,6 +248,7 @@ public class Robot extends IterativeRobot {
     		arm.setArmMode(0);
     	}
         if(operatorController.getRawButton(8)){
+        	//this.lighting.turnOn();
     		//arm.setArmMode(1);
     	}
         if(operatorController.getRawButton(2)){
@@ -236,6 +257,20 @@ public class Robot extends IterativeRobot {
         arm.move(operatorController.getRawButton(1), operatorController.getRawButton(4));
         arm.intakeRoller(operatorController.getRawButton(5), operatorController.getRawButton(6));
         // arm.readEncoder();
+        
+        
+        if (operatorController.getRawButton(2)) {
+        	this.lighting.quickToggle();
+        	System.out.println("PULSE");
+        }
+        if (operatorController.getRawButton(3)) {
+        	this.lighting.turnOn();
+        }
+        if (operatorController.getRawButton(4)) {
+        	// this.lighting.mainArray.set(Value.kOff);
+        	this.lighting.turnOff();
+        }
+        
         
         this.maintainState();
     }

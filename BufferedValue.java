@@ -3,7 +3,7 @@ package org.usfirst.frc.team1188.robot;
 import java.util.LinkedList;
 
 public class BufferedValue {
-	protected int listSize = 9;
+	protected int listSize = 29;
 	
 	LinkedList<Double> values;
 	
