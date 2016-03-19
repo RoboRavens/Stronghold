@@ -13,7 +13,7 @@ public final class Calibrations {
 	public static double armRollerSpeed = 1;
 	
 	public static double lightingFlashTotalDurationMs = 1000;
-	public static double lightingFlashes = 5;
+	public static double lightingFlashes = 10;
 	
 	// Drive and gyro modes
 	public static final int bulldozerTank = 0;
@@ -42,8 +42,8 @@ public final class Calibrations {
 	public static final int armUpTargetPosition = 0;
 	
 	// Drive encoders (INCORRECT, NEEDS TO BE DETERMINED)
-	public static final int driveEncoderTicksPerRevolution = 0;
-	public static final double driveWheelCircumferenceInches = 7.5;
+	public static final int driveEncoderTicksPerRevolution = 360;
+	public static final double driveWheelCircumferenceInches = 7.7;
 	public static final double driveEncoderTicksPerInch = (double) Calibrations.driveEncoderTicksPerRevolution / Calibrations.driveWheelCircumferenceInches;
 	
 	// Accelerometer detection of robot surface (batter, floor, etc.)
@@ -77,5 +77,11 @@ public final class Calibrations {
 	public static final double turnDegreesToAlignWithLowGoalFromLowBar = 45;
 	public static final int driveInchesToReachLowGoalFromLowBar = 84;
 	public static final int driveInchesToClearOuterworks = 12;
+	
+	// Cheval
+	public static final double autonomousChevalSpeed = .5;
+	public static final double autonomousChevalCrossSpeed = .5;
+	public static final int driveInchesToReachCheval = 36;
+	public static final int driveInchesToCrossCheval = 36;
 	
 }

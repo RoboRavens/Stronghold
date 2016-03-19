@@ -5,12 +5,12 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.Relay.Value;
 
 public class Lighting {
-	Relay mainArray;
+	private Relay mainArray;
 	Timer timer;
 	boolean toggling;
 	
 	public Lighting () {
-		mainArray = new Relay(7);
+		mainArray = new Relay(0);
 		timer = new Timer();
 		toggling = false;
 	}
@@ -18,11 +18,13 @@ public class Lighting {
 	public void turnOn() {
 		cancelToggle();
 		mainArray.set(Value.kOn);
+		System.out.println("TURNING ON");
 	}
 	
 	public void turnOff() {
 		cancelToggle();
 		mainArray.set(Value.kOff);
+		System.out.println("TURNING OFF");
 	}
 	
 	public void quickToggle() {
@@ -50,7 +52,7 @@ public class Lighting {
 		double timerMs = timer.get() * 1000;
 		
 		if (timerMs > Calibrations.lightingFlashTotalDurationMs) {
-			turnOff();
+			return;
 		}
 		
 		Value lightsValue;

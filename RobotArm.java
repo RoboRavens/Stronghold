@@ -21,6 +21,7 @@ public class RobotArm {
 	protected boolean automatedMovementEnabled = false;
 	protected boolean ejectingBall = false;
 	protected Timer ballEjectionTimer;
+	protected boolean waiting = false;
 	
 	public RobotArm() {
         ArmLeftSide = new CANTalon(RobotMap.followerArmTalonId);
@@ -31,8 +32,13 @@ public class RobotArm {
         rollerHasBoulderSwitch = new BufferedDigitalInput(RobotMap.boulderDetectionSensorChannel);
       
 		setArmMode(0);
-		ArmRightSide.setPosition(0);	
+		// ArmRightSide.setPosition(0);	
 	}
+	
+    public void wake() {
+    	this.waiting = false;
+    	this.automatedMovementEnabled = false;
+    }
 	
 	public void setArmMode(int armMode) {
     	this.armMode = armMode;
