@@ -42,10 +42,15 @@ public final class Calibrations {
 	public static final int armUpTargetPosition = 0;
 	
 	// Drive encoders (INCORRECT, NEEDS TO BE DETERMINED)
-	public static final int driveEncoderTicksPerRevolution = 360;
+	public static final int encoderE4TCyclesPerRevolution = 360;
+	public static final int encoderE4PCyclesPerRevolution = 250;
 	public static final double driveWheelCircumferenceInches = 7.7;
-	public static final double driveEncoderTicksPerInch = (double) Calibrations.driveEncoderTicksPerRevolution / Calibrations.driveWheelCircumferenceInches;
+	public static final double driveEncoderE4TCyclesPerInch = (double) Calibrations.encoderE4TCyclesPerRevolution / Calibrations.driveWheelCircumferenceInches;
+	public static final double driveEncoderE4PCyclesPerInch = (double) Calibrations.encoderE4PCyclesPerRevolution / Calibrations.driveWheelCircumferenceInches;
 	
+  public static final int leftEncoderCyclesPerRevolution = Calibrations.encoderE4TCyclesPerRevolution;
+  public static final int rightEncoderCyclesPerRevolution = Calibrations.encoderE4PCyclesPerRevolution;
+  
 	// Accelerometer detection of robot surface (batter, floor, etc.)
 	public static final Range accelerometerRange = Range.k8G;
 	
@@ -68,7 +73,6 @@ public final class Calibrations {
 	// Problems with this include that motor output is acceleration, but necessary
 	// deceleration distance is correlated with distance.
 	public static final double decelerationInchesPerMotorOutputMagnitude = 18;
-	public static final double decelerationTicksPerMotorOutputMagnitude = Calibrations.decelerationInchesPerMotorOutputMagnitude * Calibrations.driveEncoderTicksPerInch;
 	
 	// Autonomous
 	public static final double autonomousLowBarSpeed = .5;
