@@ -9,15 +9,11 @@ import edu.wpi.first.wpilibj.interfaces.Gyro;
 public class SixWheelTankDrive {
 	Robot robot;
 	
-	RavenTalon driveRight1;
-	RavenTalon driveRight2;
-	RavenTalon driveRightInverted;
-	RavenTalon driveLeft1;
-	RavenTalon driveLeft2;
-	RavenTalon driveLeftInverted;
+  TankDriveSide driveRightSide;
+  TankDriveSide driveLeftSide;
 
-	Encoder leftDriveEncoder;
-    Encoder rightDriveEncoder;
+    RavenEncoder leftEncoder;
+    RavenEncoder rightEncoder;
     
     Gyro orientationGyro;
     Timer gyroCooldownTimer;
@@ -31,14 +27,14 @@ public class SixWheelTankDrive {
 	
 	Joystick calibrationStick = new Joystick(RobotMap.calibrationJoystick);
 	
-	protected int netEncoderTicksTraveled = 0;
-	protected int targetNetEncoderTicksTraveled = 0;
+	protected int netInchesTraveled = 0;
+	protected double targetNetInchesTraveled = 0;
 	protected boolean automatedDrivingEnabled = false;
 	protected int automatedDrivingDirection = Calibrations.drivingForward;
 	protected double automatedDrivingSpeed = 0;
 	
-	protected int leftEncoderReferencePoint = 0;
-	protected int rightEncoderReferencePoint = 0;
+	protected double leftEncoderReferencePoint = 0;
+	protected double rightEncoderReferencePoint = 0;
 	
 	protected boolean hasHitObstacle = false;
 	protected boolean drivingThroughObstacle = false;
@@ -50,26 +46,29 @@ public class SixWheelTankDrive {
 		
 		slewRate = Calibrations.slewRate;
 		
-		driveRight1 = new RavenTalon(RobotMap.rightBigCim1Channel, slewRate);
-		driveRight2 = new RavenTalon(RobotMap.rightBigCim2Channel, slewRate);
-		driveRightInverted = new RavenTalon(RobotMap.rightMiniCimChannel, slewRate);
-		driveLeft1 = new RavenTalon(RobotMap.leftBigCim1Channel, slewRate);
-		driveLeft2 = new RavenTalon(RobotMap.leftBigCim2Channel, slewRate);
-		driveLeftInverted = new RavenTalon(RobotMap.leftMiniCimChannel, slewRate);
+		RavenTalon driveRight1 = new RavenTalon(RobotMap.rightBigCim1Channel, slewRate);
+		RavenTalon driveRight2 = new RavenTalon(RobotMap.rightBigCim2Channel, slewRate);
+		RavenTalon driveRightInverted = new RavenTalon(RobotMap.rightMiniCimChannel, slewRate);
+		RavenTalon driveLeft1 = new RavenTalon(RobotMap.leftBigCim1Channel, slewRate);
+		RavenTalon driveLeft2 = new RavenTalon(RobotMap.leftBigCim2Channel, slewRate);
+		RavenTalon driveLeftInverted = new RavenTalon(RobotMap.leftMiniCimChannel, slewRate);
 		
+		Encoder rightWpiEncoder = new Encoder(RobotMap.rightDriveEncoder1, RobotMap.rightDriveEncoder2);
+		Encoder leftWpiEncoder = new Encoder(RobotMap.leftDriveEncoder1, RobotMap.leftDriveEncoder2);
+    
+    leftEncoder = new RavenEncoder(rightWpiEncoder, Calibrations.rightEncoderCyclesPerRevolution, Calibrations.driveWheelCircumferenceInches);
+    rightEncoder = new RavenEncoder(leftWpiEncoder, Calibrations.leftEncoderCyclesPerRevolution, Calibrations.driveWheelCircumferenceInches);
 		
+    driveRightSide = new TankDriveSide(driveRight1, driveRight2, driveRight3, rightRavenEncoder);
+    driveLeftSide = new TankDriveSide(driveLeft1, driveLeft2, driveLeft3, leftRavenEncoder);
+    
 		orientationGyro = new AnalogGyro(1);
 		
-		
-		gyroCooldownTimer = new Timer();
-		
-		leftDriveEncoder = new Encoder(RobotMap.leftDriveEncoder1, RobotMap.leftDriveEncoder2);
-		rightDriveEncoder = new Encoder(RobotMap.rightDriveEncoder1, RobotMap.rightDriveEncoder2);
+		gyroCooldownTimer = new Timer();		
 		
 		setDriveMode(Calibrations.defaultDriveMode);
 		setLimitedPower(0);
-		
-		
+				
 		setGyroMode(Calibrations.defaultGyroMode);
 		gyroZero = setGyroZero();
 		
@@ -102,14 +101,9 @@ public class SixWheelTankDrive {
 	}
 	
 	public void setSlewRate(double slewRate) {
-		
 		slewRate = Calibrations.slewRate;
-		driveRight1.setSlewRate(slewRate);
-		driveRight2.setSlewRate(slewRate);
-		driveRightInverted.setSlewRate(slewRate);
-		driveLeft1.setSlewRate(slewRate);
-		driveLeft2.setSlewRate(slewRate);
-		driveLeftInverted.setSlewRate(slewRate);
+    driveRightSide.setSlewRate(slewRate);
+    driveLeftSide.setSlewRate(slewRate);
 	}
     
     public void drive(double left, double rightY, double rightX) {
@@ -137,12 +131,8 @@ public class SixWheelTankDrive {
     		right *= Calibrations.cutPowerModeTurnRatio;
     	}
     	
-    	driveLeft1.set(left);
-    	driveLeft2.set(left);
-    	driveLeftInverted.set(left);
-    	driveRight1.set(right);
-    	driveRight2.set(right);
-    	driveRightInverted.set(right);	
+    	driveLeftSide.drive(left);
+    	driveRightSide.drive(right);
     }
     
     public void fpsTank(double movement, double turn) {
@@ -156,13 +146,12 @@ public class SixWheelTankDrive {
         double gyroAdjust = getTurnableGyroAdjustment(turn); 
     	
     	// System.out.println("Gyro adjust: " + gyroAdjust + " gyro: " + this.orientationGyro.getAngle());
-        
-        driveLeft1.set((movement - turn) * -1 - gyroAdjust);
-    	driveLeft2.set((movement - turn)  * -1 - gyroAdjust);
-    	driveLeftInverted.set((movement - turn) * -1 - gyroAdjust);
-    	driveRight1.set((movement + turn) - gyroAdjust);
-    	driveRight2.set((movement + turn) - gyroAdjust);
-    	driveRightInverted.set((movement + turn) - gyroAdjust);
+      
+      double leftFinal = (movement - turn) * -1 - gyroAdjust;
+      double rightFinal = (movement + turn) - gyroAdjust;
+      
+      driveLeftSide.drive(left);
+    	driveRightSide.drive(right);
     }
     
     public void driveOutput() {
@@ -265,11 +254,10 @@ public class SixWheelTankDrive {
     }
     
     public void driveForwardInches(double inches, int direction, double speed) {
-    	leftEncoderReferencePoint = this.leftDriveEncoder.get();
-    	rightEncoderReferencePoint = this.rightDriveEncoder.get();
-    	
-    	int targetEncoderTicks = (int) Math.round(inches * Calibrations.driveEncoderTicksPerInch);
-    	this.targetNetEncoderTicksTraveled = targetEncoderTicks;
+    	leftEncoderReferencePoint = this.leftEncoder.getNetInchesTraveled();
+    	rightEncoderReferencePoint = this.rightDriveEncoder.getNetInchesTraveled();
+      
+    	this.targetNetInchesTraveled = inches;
     	enableAutomatedDriving(direction, speed);
     }
     
@@ -357,7 +345,7 @@ public class SixWheelTankDrive {
     	this.maintainEncoders();
     	
     	// Check if we've made it to the destination.
-    	if (netEncoderTicksTraveled <= targetNetEncoderTicksTraveled) {
+    	if (netInchesTraveled <= targetNetInchesTraveled) {
     		automatedDrivingEnabled = false;
     		return;
     	}
@@ -374,23 +362,24 @@ public class SixWheelTankDrive {
     }
     
     public void maintainEncoders() {
-    	int leftEncoderTicks = this.leftDriveEncoder.get() - this.leftEncoderReferencePoint;
-    	int rightEncoderTicks = this.rightDriveEncoder.get() - this.rightEncoderReferencePoint;
+    	double leftInches = this.leftEncoder.getNetInchesTraveled() - this.leftEncoderReferencePoint;
+    	double rightInches = this.rightEncoder.getNetInchesTraveled() - this.rightEncoderReferencePoint;
     	
-    	this.netEncoderTicksTraveled = leftEncoderTicks + rightEncoderTicks / 2;
+      // Take the mean of the left and rich inches. Turning "shouldn't" make a difference.
+    	this.netInchesTraveled = (leftInches + rightInches) / 2;
     }
     
     public double getPowerCoefficient() {
-    	double decelerationRangeEncoderTicks = Calibrations.decelerationTicksPerMotorOutputMagnitude * this.automatedDrivingSpeed;
+    	double decelerationRangeInches = Calibrations.decelerationInchesPerMotorOutputMagnitude * this.automatedDrivingSpeed;
     	
-    	int ticksToGo = targetNetEncoderTicksTraveled - netEncoderTicksTraveled;
+    	int inchesToGo = targetNetInchesTraveled - netInchesTraveled;
     	
     	// Any power cuts will be applied through this coefficient. 1 means no cuts.
     	double powerCoefficient = 1;
     	
     	// The power coefficient will be what percent of the deceleration range has been
     	// is yet to be traversed, but never higher than one.
-    	powerCoefficient = Math.min(1, ticksToGo / decelerationRangeEncoderTicks);
+    	powerCoefficient = Math.min(1, inchesToGo / decelerationRangeInches);
     	
     	return powerCoefficient;
     }
