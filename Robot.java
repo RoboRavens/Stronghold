@@ -72,52 +72,40 @@ public class Robot extends IterativeRobot {
 	public void disabledPeriodic() {
         if (operatorController.getRawButton(2)) {
         	this.lighting.quickToggle();
-        	System.out.println("PULSE");
         }
         if (operatorController.getRawButton(3)) {
         	this.lighting.turnOn();
         }
         if (operatorController.getRawButton(4)) {
-        	// this.lighting.mainArray.set(Value.kOff);
         	this.lighting.turnOff();
         }
 		
 		System.out.println("Has boulder: " + this.arm.rollerHasBoulderSwitch.get());
-		// this.lighting.mainArray.set(Value.kOn);
+		
 		Scheduler.getInstance().run();
 		this.maintainState();
 		
-        // String stringZero = SmartDashboard.getString("DB/String 0", "myDefaultData");
 		autoFromDashboard = SmartDashboard.getString("DB/String 0", "myDefaultData");
 		
-		//check input
 		switch (autoFromDashboard){
-		case "RT":
-			putSmartDashboardStringOne(autoFromDashboard);
-			break;
-		case "LB":
-			putSmartDashboardStringOne(autoFromDashboard);
-			break;
-		case "PT":
-			putSmartDashboardStringOne(autoFromDashboard);
-			break;
-		case "BT":
-			putSmartDashboardStringOne(autoFromDashboard);
-			break;
-		case "CDF":
-			putSmartDashboardStringOne(autoFromDashboard);
-			break;
-		default:
-			putSmartDashboardStringOne("Error");
-    }
-
-		//arm.readEncoder();
-//		driveTrain.getRightDriveEncoder();
-    //    driveTrain.getLeftDriveEncoder();
-     
-		
-		//System.out.println("Disabled periodic.");
-		// System.out.println(driveTrain.orientationGyro.getAngle());
+			case "RT":
+				putSmartDashboardStringOne(autoFromDashboard);
+				break;
+			case "LB":
+				putSmartDashboardStringOne(autoFromDashboard);
+				break;
+			case "PT":
+				putSmartDashboardStringOne(autoFromDashboard);
+				break;
+			case "BT":
+				putSmartDashboardStringOne(autoFromDashboard);
+				break;
+			case "CDF":
+				putSmartDashboardStringOne(autoFromDashboard);
+				break;
+			default:
+				putSmartDashboardStringOne("Error");
+		}
 	}
 	
 	public void putSmartDashboardStringOne(String value) {
@@ -154,30 +142,14 @@ public class Robot extends IterativeRobot {
             	break;
         }
         
-        
-        
-        
-                
-		/* String autoSelected = SmartDashboard.getString("Auto Selector", "Default");
-		switch(autoSelected) {
-		case "My Auto":
-			autonomousCommand = new MyAutoCommand();
-			break;
-		case "Default Auto":
-		default:
-			autonomousCommand = new ExampleCommand();
-			break;
-		} */
-
     	// schedule the autonomous command (example)
         if (autonomousCommand != null) autonomousCommand.start();
     }
 
     public void autonomousPeriodic() {
-    	// this.lighting.mainArray.set(Value.kReverse);
         Scheduler.getInstance().run();
         
-        switch (autoFromDashboard){
+        switch (autoFromDashboard) {
     		case "RT":
     			autoMode.roughTerrain();
     			break;
@@ -208,52 +180,36 @@ public class Robot extends IterativeRobot {
         this.driveTrain.overrideAutomatedDriving();
     }
 
-    /**
-     * This function is called periodically during operator control
-     */
-    public void teleopPeriodic() {
-
-    	// System.out.println(this.accelerometer.getZ());
-    	/*
-    	if (this.accelerometer.getZ() < .99 || this.accelerometer.getZ() > 1.1) {
-    		this.lighting.turnOn();
-    	}
-    	else {
-    		this.lighting.turnOff();
-    	}*/
-    	
-    	// this.lighting.turnOn();
-    	// this.lighting.mainArray.set(Value.kForward);
-    	
+    public void teleopPeriodic() { 	
         Scheduler.getInstance().run();
         double leftYAxisValue = driveController.getRawAxis(1);
     	double rightYAxisValue = driveController.getRawAxis(5);
     	double rightXAxisValue = driveController.getRawAxis(4);
     	
-    	if(driveController.getRawButton(7)){
+    	if (driveController.getRawButton(7)) {
     		driveTrain.setGyroMode(0);
     	}
-    	if(driveController.getRawButton(8)){
+    	if (driveController.getRawButton(8)) {
     //		driveTrain.setGyroMode(1);
     	}
-    	if(driveController.getRawButton(5) || driveController.getRawButton(6)){
+    	if (driveController.getRawButton(5) || driveController.getRawButton(6)) {
     		driveTrain.setLimitedPower(1);
     	}
-    	else{
+    	else {
     		driveTrain.setLimitedPower(0);
     	}
-    	if(driveController.getRawButton(2)){
-    		if(!booCount1){
+    	if (driveController.getRawButton(2)) {
+    		if(booCount1 == false){
     			driveTrain.setGyroZero(90);
     			booCount1 = true;
     		}
     	}
-    	else{
+    	else {
     		booCount1 = false;
     	}
     	
-    	if(driveController.getRawButton(3)){
-    		if(!booCount2){
+    	if (driveController.getRawButton(3)) {
+    		if (booCount2 == false ) {
     			driveTrain.setGyroZero(-90);
     			booCount2 = true;
     		}
@@ -264,44 +220,34 @@ public class Robot extends IterativeRobot {
     	
     
     	driveTrain.drive(leftYAxisValue, rightYAxisValue, rightXAxisValue);
-        //driveTrain.getRightDriveEncoder();
-       // driveTrain.getLeftDriveEncoder();
         driveTrain.getDriveGyro();
         
-        if(operatorController.getRawButton(7)){
+        if (operatorController.getRawButton(7)) {
     		arm.setArmMode(0);
     	}
-        if(operatorController.getRawButton(8)){
-        	//this.lighting.turnOn();
-    		//arm.setArmMode(1);
+        if (operatorController.getRawButton(8)) {
+
     	}
-        if(operatorController.getRawButton(2)){
+        if(operatorController.getRawButton(2)) {
     		arm.resetEncoder();
     	}
+		
         arm.move(operatorController.getRawButton(1), operatorController.getRawButton(4));
-        arm.intakeRoller(operatorController.getRawButton(5), operatorController.getRawButton(6));
-        // arm.readEncoder();
-        
+        arm.intakeRoller(operatorController.getRawButton(5), operatorController.getRawButton(6));		
         
         if (operatorController.getRawButton(2)) {
         	this.lighting.quickToggle();
-        	System.out.println("PULSE");
         }
         if (operatorController.getRawButton(3)) {
         	this.lighting.turnOn();
         }
         if (operatorController.getRawButton(4)) {
-        	// this.lighting.mainArray.set(Value.kOff);
         	this.lighting.turnOff();
         }
-        
         
         this.maintainState();
     }
     
-    /**
-     * This function is called periodically during test mode
-     */
     public void testPeriodic() {
         LiveWindow.run();
     }
