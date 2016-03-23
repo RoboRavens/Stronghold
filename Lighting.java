@@ -52,6 +52,7 @@ public class Lighting {
 		double timerMs = timer.get() * 1000;
 		
 		if (timerMs > Calibrations.lightingFlashTotalDurationMs) {
+			cancelToggle();
 			return;
 		}
 		
