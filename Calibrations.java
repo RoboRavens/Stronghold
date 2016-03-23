@@ -105,7 +105,7 @@ public final class Calibrations {
 	public static final int driveInchesToReachLowGoalFromLowBar = 84;
 	public static final int driveInchesToClearOuterworks = 12;
 	public static final int driveInchesToReachOuterWorks = 44;
-	public static final int autonomousReachSpeed = .5;
+	public static final double autonomousReachSpeed = .5;
 	
 	public static final int driveInchesToCrossLowBar = 140;
 	public static final int driveInchesToAlignWithLowGoal = 223;

@@ -158,7 +158,7 @@ public class SixWheelTankDrive {
     }
 	
 	public double getScaledTurnFromTranslation(double translation, double turn) {
-		double turnScaleReduction = Calibrations.translationMaxTurnScaling * Math.Abs(translation);
+		double turnScaleReduction = Calibrations.translationMaxTurnScaling * Math.abs(translation);
 		double turnCoefficient = 1 - turnScaleReduction;
 		double netTurn = turn * turnCoefficient;
 		
