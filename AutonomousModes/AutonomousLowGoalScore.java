@@ -114,4 +114,10 @@ public class AutonomousLowGoalScore implements IAutonomousMode {
 		
 		robot.arm.maintainState();
 	}
+
+	@Override
+	public String getStatus() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

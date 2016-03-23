@@ -50,4 +50,10 @@ public class AutonomousCrossDriveObstacle implements IAutonomousMode {
 		
 		robot.driveTrain.maintainState();
 	}
+
+	@Override
+	public String getStatus() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

@@ -30,7 +30,7 @@ public class AutonomousReachOuterWorks implements IAutonomousMode {
 		if (driveWaiting == false) {
 			switch (driveFunction) {
 				case AutonomousReachOuterWorks.driveToOuterWorks:
-					robot.driveTrain.driveForwardInches(Calibrations.driveInchesToReachOuterworks, Calibrations.drivingForward, Calibrations.autonomousReachSpeed);
+					robot.driveTrain.driveForwardInches(Calibrations.driveInchesToReachOuterWorks, Calibrations.drivingForward, Calibrations.autonomousReachSpeed);
 					break;
 				case AutonomousReachOuterWorks.waitForTeleop:
 					robot.driveTrain.stopAndWait();
@@ -49,5 +49,11 @@ public class AutonomousReachOuterWorks implements IAutonomousMode {
 		}
 		
 		robot.driveTrain.maintainState();
+	}
+
+	@Override
+	public String getStatus() {
+		// TODO Auto-generated method stub
+		return "Drive function: " + this.driveFunction;
 	}
 }

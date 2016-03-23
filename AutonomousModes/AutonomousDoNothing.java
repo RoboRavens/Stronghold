@@ -11,4 +11,10 @@ public class AutonomousDoNothing implements IAutonomousMode {
 	public void init() {
 		// Do nothing.		
 	}
+
+	@Override
+	public String getStatus() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

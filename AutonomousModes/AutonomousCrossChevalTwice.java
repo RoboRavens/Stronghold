@@ -23,4 +23,10 @@ public class AutonomousCrossChevalTwice implements IAutonomousMode {
 	public void maintainState() {
 		
 	}
+
+	@Override
+	public String getStatus() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
