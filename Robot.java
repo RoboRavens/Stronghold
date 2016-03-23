@@ -78,23 +78,36 @@ public class Robot extends IterativeRobot {
 		autoFromDashboard = SmartDashboard.getString("DB/String 0", "myDefaultData");
 		
 		switch (autoFromDashboard){
-			case "RT":
+			case Calibrations.autonomousRoughTerrain:
 				putSmartDashboardStringOne(autoFromDashboard);
 				break;
-			case "LB":
+			case Calibrations.autonomousRockWall:
 				putSmartDashboardStringOne(autoFromDashboard);
 				break;
-			case "PT":
+			case Calibrations.autonomousPortcullis:
 				putSmartDashboardStringOne(autoFromDashboard);
 				break;
-			case "BT":
+			case Calibrations.autonomousCheval:
 				putSmartDashboardStringOne(autoFromDashboard);
 				break;
-			case "CDF":
+			case Calibrations.autonomousMoat:
+				putSmartDashboardStringOne(autoFromDashboard);
+				break;
+			case Calibrations.autonomousRamparts:
+				putSmartDashboardStringOne(autoFromDashboard);
+				break;
+			case Calibrations.autonomousLowBar:
+				putSmartDashboardStringOne(autoFromDashboard);
+				break;
+			case Calibrations.autonomousReach:
+				putSmartDashboardStringOne(autoFromDashboard);
+				break;
+			case Calibrations.autonomousLowBarGoal:
 				putSmartDashboardStringOne(autoFromDashboard);
 				break;
 			default:
 				putSmartDashboardStringOne("Error");
+				break;
 		}
 	}
 	
@@ -118,19 +131,40 @@ public class Robot extends IterativeRobot {
         driveTrain.resetDriveGyro();
         
         switch (autoFromDashboard) {
-        	case "LG":
-        		autonomousMode = new AutonomousLowGoalScore(this);
-            	autonomousMode.init();
-            	break;
-        	case "CDF":
-        		autonomousMode = new AutonomousCrossCheval(this);
-        		autonomousMode.init();
-        		break;
+			case Calibrations.autonomousRoughTerrain:
+				autonomousMode = new AutonomousCrossRoughTerrain(this);
+				break;
+			case Calibrations.autonomousRockWall:
+				autonomousMode = new AutonomousCrossDriveObstacle(this);
+				break;
+			// Portcullis autonomous hasn't been implemented yet.
+			//case Calibrations.autonomousPortcullis:
+			//	autonomousMode = new AutonomousCrossPortcullis(this);
+			//	break;
+			case Calibrations.autonomousCheval:
+				autonomousMode = new AutonomousCrossCheval(this);
+				break;
+			case Calibrations.autonomousMoat:
+				autonomousMode = new AutonomousCrossDriveObstacle(this);
+				break;
+			case Calibrations.autonomousRamparts:
+				autonomousMode = new AutonomousCrossDriveObstacle(this);
+				break;
+			case Calibrations.autonomousLowBar:
+				autonomousMode = new AutonomousCrossLowBar(this);
+				break;
+			case Calibrations.autonomousReach:
+				autonomousMode = new AutonomousReachOuterWorks(this);
+				break;
+			case Calibrations.autonomousLowBarGoal:
+				autonomousMode = new AutonomousLowGoalScore(this);
+				break;
         	default:
         		autonomousMode = new AutonomousDoNothing();
-            	autonomousMode.init();
             	break;
         }
+		
+		autonomousMode.init();
         
     	// schedule the autonomous command (example)
         if (autonomousCommand != null) autonomousCommand.start();
