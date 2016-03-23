@@ -70,16 +70,6 @@ public class Robot extends IterativeRobot {
     }
 	
 	public void disabledPeriodic() {
-        if (operatorController.getRawButton(2)) {
-        	this.lighting.quickToggle();
-        }
-        if (operatorController.getRawButton(3)) {
-        	this.lighting.turnOn();
-        }
-        if (operatorController.getRawButton(4)) {
-        	this.lighting.turnOff();
-        }
-		
 		System.out.println("Has boulder: " + this.arm.rollerHasBoulderSwitch.get());
 		
 		Scheduler.getInstance().run();
