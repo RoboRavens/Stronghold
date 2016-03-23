@@ -46,8 +46,10 @@ public class AutonomousCrossCheval implements IAutonomousMode {
 			case AutonomousCrossCheval.wakeArm:
 				robot.driveTrain.stopAndWait();
 				robot.arm.wake();
+				break;
 			case AutonomousCrossCheval.driveOverCheval:
 				robot.driveTrain.driveForwardInches(Calibrations.driveInchesToCrossCheval,  Calibrations.drivingForward, Calibrations.autonomousChevalCrossSpeed);
+				break;
 			}
 			
 			driveWaiting = true;
@@ -72,6 +74,7 @@ public class AutonomousCrossCheval implements IAutonomousMode {
 					break;
 				case AutonomousCrossCheval.wakeDriveTrain:
 					robot.driveTrain.wake();
+					break;
 			}
 			
 			armWaiting = true;
