@@ -86,6 +86,12 @@ public final class Calibrations {
 	public static final int driveInchesToReachLowGoalFromLowBar = 84;
 	public static final int driveInchesToClearOuterworks = 12;
 	
+	// Arm positions
+	public static final int armAtTopOfRange = 1;
+	public static final int armAtBottomOfRange = 2;
+	
+	public static final int armStartingPosition = Calibrations.armAtTopOfRange;
+	
 	// Cheval
 	public static final double autonomousChevalSpeed = .5;
 	public static final double autonomousChevalCrossSpeed = .5;
