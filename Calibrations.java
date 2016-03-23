@@ -12,7 +12,7 @@ public final class Calibrations {
 	public static double translationMaxTurnScaling = .5;
 	
 	// Arm calibration
-	public static double armBaseSpeed = .5;
+	public static double armBaseSpeed = .8;
 	public static double armRollerSpeed = 1;
 	
 	// Lighting
@@ -31,7 +31,7 @@ public final class Calibrations {
 	
 	// Default drive and gyro modes
 	public static final int defaultDriveMode = Calibrations.fpsTank;
-	public static final int defaultGyroMode = Calibrations.gyroDisabled;
+	public static final int defaultGyroMode = Calibrations.gyroEnabled;
 	
 	// Arm control mode
 	public static final int armManualControlMode = 0;
@@ -53,7 +53,7 @@ public final class Calibrations {
 	public static final double driveEncoderE4PCyclesPerInch = (double) Calibrations.encoderE4PCyclesPerRevolution / Calibrations.driveWheelCircumferenceInches;
 	
 	public static final int leftEncoderCyclesPerRevolution = Calibrations.encoderE4TCyclesPerRevolution;
-	public static final int rightEncoderCyclesPerRevolution = Calibrations.encoderE4PCyclesPerRevolution;
+	public static final int rightEncoderCyclesPerRevolution = Calibrations.encoderE4TCyclesPerRevolution;
   
 	// Accelerometer detection of robot surface (batter, floor, etc.)
 	public static final Range accelerometerRange = Range.k8G;
@@ -69,8 +69,8 @@ public final class Calibrations {
 	public static final int cameraQuality = 50;
 	
 	// Direction magic numbers
-	public static final int drivingForward = 1;
-	public static final int drivingBackward = -1;
+	public static final int drivingForward = -1;
+	public static final int drivingBackward = 1;
 	
 	// Until we have more genuine motion profiling capabilities, we'll use this.
 	// This is "feet necessary to decelerate per 1 magnitude of motor output."

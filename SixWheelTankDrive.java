@@ -59,6 +59,8 @@ public class SixWheelTankDrive {
 		leftEncoder = new RavenEncoder(rightWpiEncoder, Calibrations.rightEncoderCyclesPerRevolution, Calibrations.driveWheelCircumferenceInches);
 		rightEncoder = new RavenEncoder(leftWpiEncoder, Calibrations.leftEncoderCyclesPerRevolution, Calibrations.driveWheelCircumferenceInches);
 		
+		rightEncoder.setInverted(true);
+		
 		driveRightSide = new TankDriveSide(driveRight1, driveRight2, driveRight3, rightEncoder);
 		driveLeftSide = new TankDriveSide(driveLeft1, driveLeft2, driveLeft3, leftEncoder);
     
@@ -106,7 +108,7 @@ public class SixWheelTankDrive {
     	rightY = deadband(rightY);
     	rightX = deadband(rightX);
     	
-    	this.setSlewRate(Math.abs(this.calibrationStick.getZ() * 2));
+    	// this.setSlewRate(Math.abs(this.calibrationStick.getZ() * 2));
     	
     	switch (driveMode) {
     		case Calibrations.bulldozerTank:
@@ -132,6 +134,9 @@ public class SixWheelTankDrive {
     
     public void fpsTank(double translation, double turn) {
     	System.out.println("Gyro: " + orientationGyro.getAngle() + " Lencoder: " + this.leftEncoder.getNetInchesTraveled() + " Rencoder: " + this.rightEncoder.getNetInchesTraveled());
+		
+		System.out.println("LINV: " + this.leftEncoder.inverted + " RINV: " + this.rightEncoder.inverted);
+		
     	
     	if (limitedPower == 1){
     		translation *= Calibrations.cutPowerModeMovementRatio;
@@ -307,6 +312,8 @@ public class SixWheelTankDrive {
     }
     
     public void maintainState() {
+		System.out.println("Gyro: " + orientationGyro.getAngle() + " Lencoder: " + this.leftEncoder.getNetInchesTraveled() + " Rencoder: " + this.rightEncoder.getNetInchesTraveled());
+		
     	// Maintain state only does things while automated driving is enabled.
     	if (automatedDrivingEnabled == false) {
     		return;
@@ -373,6 +380,8 @@ public class SixWheelTankDrive {
     	
       // Take the mean of the left and rich inches. Turning "shouldn't" make a difference.
     	this.netInchesTraveled = (leftInches + rightInches) / 2;
+		
+		System.out.println("ME NIT: " + this.netInchesTraveled);
     }
     
     public double getPowerCoefficient() {
