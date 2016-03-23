@@ -91,7 +91,7 @@ public class AutonomousLowGoalScore implements IAutonomousMode {
 		if (armWaiting == false) {
 			switch (armFunction) {
 				case AutonomousLowGoalScore.lowerArmForLowBar:
-					robot.arm.moveArmToBottomOfRange(Calibrations.armDownTargetPosition);
+					robot.arm.moveArmToBottomOfRange();
 					break;
 				case AutonomousLowGoalScore.scoreBoulder:
 					robot.arm.ejectBoulder();
@@ -114,5 +114,4 @@ public class AutonomousLowGoalScore implements IAutonomousMode {
 		
 		robot.arm.maintainState();
 	}
-
 }

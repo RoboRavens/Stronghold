@@ -4,15 +4,11 @@ import org.usfirst.frc.team1188.robot.Calibrations;
 import org.usfirst.frc.team1188.robot.IAutonomousMode;
 import org.usfirst.frc.team1188.robot.Robot;
 
-public class AutonomousCrossCheval implements IAutonomousMode {
-	protected static final int driveToCheval = 1;
-	protected static final int wakeArm = 2;
-	protected static final int driveOverCheval = 3;
+public class AutonomousCrossLowBar implements IAutonomousMode {
+	protected static final int driveToAlignWithLowGoal = 1;
+	protected static final int waitForTeleop = 2;
 	
-	protected static final int lowerArmToLowerCheval = 1;
-	protected static final int wakeDriveTrain = 2;
-	
-	public Robot robot;
+	protected static final int lowerArmForLowBar = 1;
 	
 	protected int driveFunction;
 	protected boolean driveWaiting;
@@ -20,16 +16,18 @@ public class AutonomousCrossCheval implements IAutonomousMode {
 	protected int armFunction;
 	protected boolean armWaiting;
 	
-	public AutonomousCrossCheval(Robot robot) {
+	public Robot robot;
+	
+	public AutonomousCrossLowBar(Robot robot) {
 		this.robot = robot;
 	}
 	
 	public void init() {
-		driveFunction = AutonomousCrossCheval.driveToCheval;
+		driveFunction = AutonomousCrossLowBar.driveToAlignWithLowGoal;
 		driveWaiting = false;
 		
-		armFunction = AutonomousCrossCheval.lowerArmToLowerCheval;
-		armWaiting = true;
+		armFunction = AutonomousCrossLowBar.lowerArmForLowBar;
+		armWaiting = false;
 	}
 		
 	public void maintainState() {
@@ -40,16 +38,12 @@ public class AutonomousCrossCheval implements IAutonomousMode {
 	public void maintainDriveState() {
 		if (driveWaiting == false) {
 			switch (driveFunction) {
-			case AutonomousCrossCheval.driveToCheval:
-				robot.driveTrain.driveForwardInches(Calibrations.driveInchesToReachCheval, Calibrations.drivingForward, Calibrations.autonomousChevalSpeed);
-				break;
-			case AutonomousCrossCheval.wakeArm:
-				robot.driveTrain.stopAndWait();
-				robot.arm.wake();
-				break;
-			case AutonomousCrossCheval.driveOverCheval:
-				robot.driveTrain.driveForwardInches(Calibrations.driveInchesToCrossCheval,  Calibrations.drivingForward, Calibrations.autonomousChevalCrossSpeed);
-				break;
+				case AutonomousCrossLowBar.driveToAlignWithLowGoal:
+					robot.driveTrain.driveForwardInches(Calibrations.driveInchesToCrossLowBar, Calibrations.drivingForward, Calibrations.autonomousLowBarSpeed);
+					break;
+				case AutonomousCrossLowBar.waitForTeleop:
+					robot.driveTrain.stopAndWait();
+					break;
 			}
 			
 			driveWaiting = true;
@@ -69,11 +63,8 @@ public class AutonomousCrossCheval implements IAutonomousMode {
 	public void maintainArmState() {
 		if (armWaiting == false) {
 			switch (armFunction) {
-				case AutonomousCrossCheval.lowerArmToLowerCheval:
+				case AutonomousCrossLowBar.lowerArmForLowBar:
 					robot.arm.moveArmToBottomOfRange();
-					break;
-				case AutonomousCrossCheval.wakeDriveTrain:
-					robot.driveTrain.wake();
 					break;
 			}
 			

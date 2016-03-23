@@ -4,21 +4,21 @@ import org.usfirst.frc.team1188.robot.Calibrations;
 import org.usfirst.frc.team1188.robot.IAutonomousMode;
 import org.usfirst.frc.team1188.robot.Robot;
 
-public class AutonomousReachOuterWorks implements IAutonomousMode {
-	protected static final int driveToOuterWorks = 1;
+public class AutonomousCrossRoughTerrain implements IAutonomousMode {
+	protected static final int driveToCrossRoughTerrain = 1;
 	protected static final int waitForTeleop = 2;
-	
-	public Robot robot;
 	
 	protected int driveFunction;
 	protected boolean driveWaiting;
 	
-	public AutonomousReachOuterWorks(Robot robot) {
+	public Robot robot;
+	
+	public AutonomousCrossRoughTerrain(Robot robot) {
 		this.robot = robot;
 	}
 	
 	public void init() {
-		driveFunction = AutonomousReachOuterWorks.driveToOuterWorks;
+		driveFunction = AutonomousCrossRoughTerrain.driveToCrossRoughTerrain;
 		driveWaiting = false;
 	}
 		
@@ -29,10 +29,10 @@ public class AutonomousReachOuterWorks implements IAutonomousMode {
 	public void maintainDriveState() {
 		if (driveWaiting == false) {
 			switch (driveFunction) {
-				case AutonomousReachOuterWorks.driveToOuterWorks:
-					robot.driveTrain.driveForwardInches(Calibrations.driveInchesToReachOuterworks, Calibrations.drivingForward, Calibrations.autonomousReachSpeed);
+				case AutonomousCrossRoughTerrain.driveToCrossRoughTerrain:
+					robot.driveTrain.driveForwardInches(Calibrations.driveInchesToCrossRoughTerrain, Calibrations.drivingForward, Calibrations.autonomousDriveObstacleSpeed);
 					break;
-				case AutonomousReachOuterWorks.waitForTeleop:
+				case AutonomousCrossRoughTerrain.waitForTeleop:
 					robot.driveTrain.stopAndWait();
 					break;
 			}
