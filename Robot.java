@@ -70,7 +70,7 @@ public class Robot extends IterativeRobot {
     }
 	
 	public void disabledPeriodic() {
-		System.out.println("Has boulder: " + this.arm.rollerHasBoulderSwitch.get());
+		System.out.println("Has boulder: " + this.arm.rollerHasBoulder());
 		
 		Scheduler.getInstance().run();
 		this.maintainState();

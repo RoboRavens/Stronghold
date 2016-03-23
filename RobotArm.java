@@ -12,7 +12,6 @@ public class RobotArm {
 	DigitalInput armUpperLimit;
 	BufferedDigitalInput rollerHasBoulderSwitch;
 	
-	//EncoderToMotor armEncoder;
 	double startPosition = 1;
 	double targetPosition = 1;
 	double powerToMotor;
@@ -23,6 +22,8 @@ public class RobotArm {
 	protected Timer ballEjectionTimer;
 	protected boolean waiting = false;
 	
+	protected int armTargetPosition = Calibrations.armStartingPosition;
+	
 	public RobotArm() {
         ArmLeftSide = new CANTalon(RobotMap.followerArmTalonId);
         ArmRightSide = new CANTalon(RobotMap.masterArmTalonId);
@@ -32,7 +33,6 @@ public class RobotArm {
         rollerHasBoulderSwitch = new BufferedDigitalInput(RobotMap.boulderDetectionSensorChannel);
       
 		setArmMode(0);
-		// ArmRightSide.setPosition(0);	
 	}
 	
     public void wake() {
@@ -71,11 +71,11 @@ public class RobotArm {
     	double armSpeed = 0;
     	
     	// Include limit switch calls in the if statements.
-    	if (up && armUpperLimit.get()) {
+    	if (up && armIsAtTopOfRange() == false) {
     		armSpeed = Calibrations.armBaseSpeed;
     	}
     	
-    	if (down && armLowerLimit.get()) {
+    	if (down && armIsAtBottomOfRange() == false) {
     		armSpeed = Calibrations.armBaseSpeed * -1;
     	}
     	
@@ -85,10 +85,10 @@ public class RobotArm {
     
     public void armAuto(double armSpeed) {
     	// Include limit switch calls in the if statements.
-    	if (!armUpperLimit.get()) {
+    	if (armUpperLimit.get() == false) {
     		armSpeed = 0;
     	}
-    	if (!armLowerLimit.get()) {
+    	if (armLowerLimit.get() == false) {
     		armSpeed = 0;
     	}
     	
@@ -102,10 +102,30 @@ public class RobotArm {
     	
     	// TODO: Implemented moving arm to encoder position.
     }
+	
+	public void moveArmToTopOfRange() {
+		this.automatedMovementEnabled = true;
+		
+		this.armTargetPosition = Calibrations.armAtTopOfRange;
+	}
+	
+	public void moveArmToBottomOfRange() {
+		this.automatedMovementEnabled = true;
+	
+		this.armTargetPosition = Calibrations.armAtBottomOfRange;
+	}
     
+	public boolean armIsAtTopOfRange() {
+		return this.armUpperLimit.get() == false;
+	}
+	
+	public boolean armIsAtBottomOfRange() {
+		return this.armLowerLimit.get() == false;
+	}
+	
     public void ejectBoulder() {
+		this.ejectingBall = true;
     	this.automatedMovementEnabled = true;
-    	
     }
     
     public boolean automatedActionHasCompleted() {
@@ -115,26 +135,8 @@ public class RobotArm {
     
     
     public boolean rollerHasBoulder() {
-    	return rollerHasBoulderSwitch.get();
-    }
-	
-/*    public void armPosition(boolean up, boolean down) {
-    	
-    	if (up) {
-    		targetPosition = 50000;
-    		startPosition = ArmLeftSide.getEncPosition();
-    	}
-    	if (down) {
-    		targetPosition = 1;
-    		startPosition = ArmLeftSide.getEncPosition();
-    	}
-
-        //powerToMotor = armEncoder.power(startPosition, targetPosition, ArmLeftSide.getEncPosition(), 0);
-        System.out.println("Target Position:" + targetPosition +" Encoder:" + ArmLeftSide.getEncPosition() + " Power:" + powerToMotor);
-        ArmLeftSide.set(-powerToMotor/3);
-    	//ArmRightSide.set(powerToMotor);
-    } */
-    
+    	return rollerHasBoulderSwitch.get() == false;
+    } 
     
     // NOTE: The "up" and "down" labelings here are inconsistent.
     // Something needs to be checked and fixed.
@@ -146,25 +148,24 @@ public class RobotArm {
     		targetPosition = Calibrations.armUpTargetPosition;
     	}
 
-    	if(!armLowerLimit.get()){
+    	if(armLowerLimit.get() == false) {
     		targetPosition = ArmRightSide.getEncPosition();
     	}
     	ArmRightSide.set(targetPosition);
      	ArmLeftSide.set(1);
     }
     
-    public void readEncoder(){
+    public void readEncoder() {
     	  System.out.println(" Encoder:" + ArmRightSide.getEncPosition());
     }
     
-    public void resetEncoder(){
+    public void resetEncoder() {
     	ArmRightSide.setPosition(0);
     }
-    
-
+	
     public void intakeRoller(boolean in, boolean out) {
-    	
     	double rollerSpeed = 0;
+		
     	if (in) {
     		rollerSpeed = Calibrations.armRollerSpeed;
     	}	
@@ -192,7 +193,6 @@ public class RobotArm {
     public void maintainBallEjectionState() {
     	this.intakeRoller(false, true);
     	
-    	
     	// As soon as the roller switch is false, start a timer to run the
     	// roller for another half second.
     	if (this.rollerHasBoulder() == false) {
@@ -218,11 +218,34 @@ public class RobotArm {
     	
     	// For now assume the position is never reached.
     	boolean positionReached = false;
+		
+		if (armTargetPosition == Calibrations.armAtTopOfRange) {
+			maintainArmMovingToTopOfRange();
+			
+			if (armIsAtTopOfRange()) {
+				positionReached = true;
+			}
+		}
+		
+		if (armTargetPosition == Calibrations.armAtBottomOfRange) {
+			maintainArmMovingToBottomOfRange();
+			
+			if (armIsAtBottomOfRange()) {
+				positionReached = true;
+			}
+		}
     	
     	if (positionReached) {
     		this.automatedMovementEnabled = false;
     		return;
     	}
     }
-    
+	
+	public void maintainArmMovingToTopOfRange() {
+		this.armJoy(false, true);
+	}
+	
+	public void maintainArmMovingToBottomOfRange() {
+		this.armJoy(true, false);
+	}    
 }
