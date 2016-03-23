@@ -9,8 +9,8 @@ import edu.wpi.first.wpilibj.interfaces.Gyro;
 public class SixWheelTankDrive {
 	Robot robot;
 	
-  TankDriveSide driveRightSide;
-  TankDriveSide driveLeftSide;
+	TankDriveSide driveRightSide;
+	TankDriveSide driveLeftSide;
 
     RavenEncoder leftEncoder;
     RavenEncoder rightEncoder;
@@ -56,11 +56,11 @@ public class SixWheelTankDrive {
 		Encoder rightWpiEncoder = new Encoder(RobotMap.rightDriveEncoder1, RobotMap.rightDriveEncoder2);
 		Encoder leftWpiEncoder = new Encoder(RobotMap.leftDriveEncoder1, RobotMap.leftDriveEncoder2);
     
-    leftEncoder = new RavenEncoder(rightWpiEncoder, Calibrations.rightEncoderCyclesPerRevolution, Calibrations.driveWheelCircumferenceInches);
-    rightEncoder = new RavenEncoder(leftWpiEncoder, Calibrations.leftEncoderCyclesPerRevolution, Calibrations.driveWheelCircumferenceInches);
+		leftEncoder = new RavenEncoder(rightWpiEncoder, Calibrations.rightEncoderCyclesPerRevolution, Calibrations.driveWheelCircumferenceInches);
+		rightEncoder = new RavenEncoder(leftWpiEncoder, Calibrations.leftEncoderCyclesPerRevolution, Calibrations.driveWheelCircumferenceInches);
 		
-    driveRightSide = new TankDriveSide(driveRight1, driveRight2, driveRight3, rightEncoder);
-    driveLeftSide = new TankDriveSide(driveLeft1, driveLeft2, driveLeft3, leftEncoder);
+		driveRightSide = new TankDriveSide(driveRight1, driveRight2, driveRight3, rightEncoder);
+		driveLeftSide = new TankDriveSide(driveLeft1, driveLeft2, driveLeft3, leftEncoder);
     
 		orientationGyro = new AnalogGyro(1);
 		
@@ -71,11 +71,6 @@ public class SixWheelTankDrive {
 				
 		setGyroMode(Calibrations.defaultGyroMode);
 		gyroZero = setGyroZero();
-		
-		// Having this line uncommented crashes the program; it won't even boot on the roborio.
-		// I'm not sure why, but it might have to do with resetting the gyro before it's done calibrating.
-		// resetDriveGyro();
-		// orientationGyro.calibrate();
 	}
 
 	public void setDriveMode(int driveMode) {
@@ -102,8 +97,8 @@ public class SixWheelTankDrive {
 	
 	public void setSlewRate(double slewRate) {
 		slewRate = Calibrations.slewRate;
-    driveRightSide.setSlewRate(slewRate);
-    driveLeftSide.setSlewRate(slewRate);
+		driveRightSide.setSlewRate(slewRate);
+		driveLeftSide.setSlewRate(slewRate);
 	}
     
     public void drive(double left, double rightY, double rightX) {
@@ -135,24 +130,35 @@ public class SixWheelTankDrive {
     	driveRightSide.drive(right);
     }
     
-    public void fpsTank(double movement, double turn) {
+    public void fpsTank(double translation, double turn) {
     	System.out.println("Gyro: " + orientationGyro.getAngle() + " Lencoder: " + this.leftEncoder.getNetInchesTraveled() + " Rencoder: " + this.rightEncoder.getNetInchesTraveled());
     	
     	if (limitedPower == 1){
-    		movement *= Calibrations.cutPowerModeMovementRatio;
+    		translation *= Calibrations.cutPowerModeMovementRatio;
     		turn *= Calibrations.cutPowerModeTurnRatio;
     	}
-    	    	
+    	
+		// Apply a small reduction to turning magnitude based on the magnitude of translation.
+		turn = getScaledTurnFromTranslation(translation, turn);
+		
         double gyroAdjust = getTurnableGyroAdjustment(turn); 
     	
     	// System.out.println("Gyro adjust: " + gyroAdjust + " gyro: " + this.orientationGyro.getAngle());
       
-      double leftFinal = (movement - turn) * -1 - gyroAdjust;
-      double rightFinal = (movement + turn) - gyroAdjust;
+		double leftFinal = (translation - turn) * -1 - gyroAdjust;
+		double rightFinal = (translation + turn) - gyroAdjust;
       
-      driveLeftSide.drive(leftFinal);
+		driveLeftSide.drive(leftFinal);
     	driveRightSide.drive(rightFinal);
     }
+	
+	public double getScaledTurnFromTranslation(double translation, double turn) {
+		double turnScaleReduction = Calibrations.translationMaxTurnScaling * Math.Abs(translation);
+		double turnCoefficient = 1 - turnScaleReduction;
+		double netTurn = turn * turnCoefficient;
+		
+		return netTurn;
+	}
     
     public void driveOutput() {
     	
