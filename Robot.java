@@ -70,6 +70,19 @@ public class Robot extends IterativeRobot {
     }
 	
 	public void disabledPeriodic() {
+        if (operatorController.getRawButton(2)) {
+        	this.lighting.quickToggle();
+        	System.out.println("PULSE");
+        }
+        if (operatorController.getRawButton(3)) {
+        	this.lighting.turnOn();
+        }
+        if (operatorController.getRawButton(4)) {
+        	// this.lighting.mainArray.set(Value.kOff);
+        	this.lighting.turnOff();
+        }
+		
+		System.out.println("Has boulder: " + this.arm.rollerHasBoulderSwitch.get());
 		// this.lighting.mainArray.set(Value.kOn);
 		Scheduler.getInstance().run();
 		this.maintainState();
@@ -80,19 +93,22 @@ public class Robot extends IterativeRobot {
 		//check input
 		switch (autoFromDashboard){
 		case "RT":
-			SmartDashboard.putString("DB/String 1", autoFromDashboard);
+			putSmartDashboardStringOne(autoFromDashboard);
 			break;
 		case "LB":
-			SmartDashboard.putString("DB/String 1", autoFromDashboard);
+			putSmartDashboardStringOne(autoFromDashboard);
 			break;
 		case "PT":
-			SmartDashboard.putString("DB/String 1", autoFromDashboard);
+			putSmartDashboardStringOne(autoFromDashboard);
 			break;
 		case "BT":
-			SmartDashboard.putString("DB/String 1", autoFromDashboard);
+			putSmartDashboardStringOne(autoFromDashboard);
+			break;
+		case "CDF":
+			putSmartDashboardStringOne(autoFromDashboard);
 			break;
 		default:
-			SmartDashboard.putString("DB/String 1", "Error");
+			putSmartDashboardStringOne("Error");
     }
 
 		//arm.readEncoder();
@@ -102,6 +118,10 @@ public class Robot extends IterativeRobot {
 		
 		//System.out.println("Disabled periodic.");
 		// System.out.println(driveTrain.orientationGyro.getAngle());
+	}
+	
+	public void putSmartDashboardStringOne(String value) {
+		SmartDashboard.putString("DB/String 1", value);
 	}
 
 	/**
@@ -124,6 +144,10 @@ public class Robot extends IterativeRobot {
         		autonomousMode = new AutonomousLowGoalScore(this);
             	autonomousMode.init();
             	break;
+        	case "CDF":
+        		autonomousMode = new AutonomousCrossCheval(this);
+        		autonomousMode.init();
+        		break;
         	default:
         		autonomousMode = new AutonomousDoNothing();
             	autonomousMode.init();
@@ -190,13 +214,13 @@ public class Robot extends IterativeRobot {
     public void teleopPeriodic() {
 
     	// System.out.println(this.accelerometer.getZ());
-    	
+    	/*
     	if (this.accelerometer.getZ() < .99 || this.accelerometer.getZ() > 1.1) {
     		this.lighting.turnOn();
     	}
     	else {
     		this.lighting.turnOff();
-    	}
+    	}*/
     	
     	// this.lighting.turnOn();
     	// this.lighting.mainArray.set(Value.kForward);
@@ -285,6 +309,12 @@ public class Robot extends IterativeRobot {
     public void maintainAutonomousState() {
     	this.maintainState();
     	autonomousMode.maintainState();
+    	
+    	this.logAutonomous();
+    }
+    
+    public void logAutonomous() {
+    	System.out.println("Autonomous step: " + this.autonomousMode.getStatus());
     }
     
     public void maintainState() {
