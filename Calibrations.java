@@ -3,15 +3,19 @@ package org.usfirst.frc.team1188.robot;
 import edu.wpi.first.wpilibj.interfaces.Accelerometer.Range;
 
 public final class Calibrations {
+	// Drive calibration
 	public static double slewRate = .35;
 	public static double cutPowerModeMovementRatio = .3;
 	public static double cutPowerModeTurnRatio = .5;
 	public static double gyroAdjustmentScaleFactor = .03;
 	public static double gyroCooldownTimerTime = 1;
+	public static double translationMaxTurnScaling = .5;
 	
+	// Arm calibration
 	public static double armBaseSpeed = .5;
 	public static double armRollerSpeed = 1;
 	
+	// Lighting
 	public static double lightingFlashTotalDurationMs = 1000;
 	public static double lightingFlashes = 10;
 	
@@ -48,8 +52,8 @@ public final class Calibrations {
 	public static final double driveEncoderE4TCyclesPerInch = (double) Calibrations.encoderE4TCyclesPerRevolution / Calibrations.driveWheelCircumferenceInches;
 	public static final double driveEncoderE4PCyclesPerInch = (double) Calibrations.encoderE4PCyclesPerRevolution / Calibrations.driveWheelCircumferenceInches;
 	
-  public static final int leftEncoderCyclesPerRevolution = Calibrations.encoderE4TCyclesPerRevolution;
-  public static final int rightEncoderCyclesPerRevolution = Calibrations.encoderE4PCyclesPerRevolution;
+	public static final int leftEncoderCyclesPerRevolution = Calibrations.encoderE4TCyclesPerRevolution;
+	public static final int rightEncoderCyclesPerRevolution = Calibrations.encoderE4PCyclesPerRevolution;
   
 	// Accelerometer detection of robot surface (batter, floor, etc.)
 	public static final Range accelerometerRange = Range.k8G;
